@@ -18,6 +18,9 @@ import { CategoriesService } from './categories/categories.service';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductVariantsModule } from './product-variants/product-variants.module';
 import { CouponsModule } from './coupons/coupons.module';
+import { PhotosModule } from './photos/photos.module';
+import { CategoriesController } from './categories/categories.controller';
+import { Category } from './categories/category.entity';
 
 @Module({
   imports: [
@@ -26,9 +29,25 @@ import { CouponsModule } from './coupons/coupons.module';
       envFilePath:'.env'
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: typeOrmConfig,
+      useFactory: (config:ConfigService)=>{
+        // console.log(config.get<string>('DB_HOST'))
+        // console.log(config.get<string>('DB_PORT'))
+        // console.log(config.get<string>('DB_USERNAME'))
+        // console.log(config.get<string>('DB_PASSWORD'))
+        // console.log(config.get<string>('DB_DATABASE'))
+        return {
+          type: 'postgres',
+          host: config.get<string>('DB_HOST'),
+          port: config.get<number>('DB_PORT'),
+          username: config.get<string>('DB_USERNAME'),
+          password: config.get<string>('DB_PASSWORD'),
+          database: config.get<string>('DB_DATABASE'),
+          entities: [Category],
+          logging: true,
+          synchronize: true,
+        }
+      },
     }),
     UsersModule,
     AddressesModule,
@@ -40,9 +59,10 @@ import { CouponsModule } from './coupons/coupons.module';
     ReviewsModule,
     CategoriesModule,
     ProductVariantsModule,
-    CouponsModule
+    CouponsModule,
+    PhotosModule
   ],
-  controllers: [AppController, UsersController],
-  providers: [AppService, UsersService, CategoriesService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

@@ -1,5 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Role } from './roles.enum';
+import { randomBytes, scrypt as _scrypt } from 'crypto';
+import { promisify } from 'util';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+// const scrypt = promisify(_scrypt);
 
 @Entity()
 export class Users {
@@ -18,12 +29,42 @@ export class Users {
   @Column({ type: 'text', default: Role.User })
   role: Role;
 
+  password_updated: boolean = false;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  // need to use hooks to hash password
-  // and update update date
+  @BeforeInsert()
+  async hashPasswordBeforeInsert() {
+    // const salt: string = await randomBytes(8).toString('hex');
+    // const hash: Buffer = (await scrypt(this.password, salt, 32)) as Buffer;
+    // const result: string = salt + '.' + hash.toString('hex');
+    this.password = await bcrypt.hash(this.password, 10);
+    this.created_at = new Date();
+  }
+
+  @BeforeUpdate()
+  async hashPasswordBeforUpdate() {
+    if (this.password_updated) {
+      // const salt: string = await randomBytes(8).toString('hex');
+      // const hash: Buffer = (await scrypt(this.password, salt, 32)) as Buffer;
+      // const result: string = salt + '.' + hash.toString('hex');
+      this.password = await bcrypt.hash(this.password, 10);
+      this.password_updated = false;
+    }
+    this.updated_at = new Date();
+  }
+
+  async comparePassword(password): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
+  }
+
+  async generateToken(): Promise<string>{
+    const payload = { id: this.id };
+    const secret = process.env.JWT_SECRET;
+    return await jwt.sign(payload, secret, { expiresIn: '1h' });
+  }
 }
