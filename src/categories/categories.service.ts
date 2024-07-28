@@ -1,10 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from './category.entity';
 import { CreateCategoryDTO } from './dtos/createCategory.dto';
-import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import {
+  IPaginationOptions,
+  paginate,
+  Pagination,
+} from 'nestjs-typeorm-paginate';
 import { CategoriesPaginationQueryDTO } from './dtos/categories-pagination-query.dto';
+import { UpdateCategoryDTO } from './dtos/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -18,25 +27,51 @@ export class CategoriesService {
     return await this.categoryRepo.save(createdCategory);
   }
 
-  async paginateCategories(options:IPaginationOptions,other:CategoriesPaginationQueryDTO):Promise<Pagination<Category>>{
-    const queryBuilder=this.categoryRepo.createQueryBuilder('c')
+  async paginateCategories(
+    options: IPaginationOptions,
+    other: CategoriesPaginationQueryDTO,
+  ): Promise<Pagination<Category>> {
+    const queryBuilder = this.categoryRepo.createQueryBuilder('c');
     if (other?.orderBy) {
-      other.orderBy.forEach(orderBy => {
+      other.orderBy.forEach((orderBy) => {
         queryBuilder.addOrderBy(`c.${orderBy.field}`, orderBy.direction);
       });
     }
-  
+
     if (other?.name) {
       queryBuilder.andWhere('c.name LIKE :name', { name: `%${other.name}%` });
       console.log(queryBuilder);
-      
     }
-  
+
     if (other?.description) {
-      queryBuilder.andWhere('c.description LIKE :description', { description: `%${other.description}%` });
+      queryBuilder.andWhere('c.description LIKE :description', {
+        description: `%${other.description}%`,
+      });
     }
-    return paginate<Category>(queryBuilder,options);
+    return await paginate<Category>(queryBuilder, options);
   }
 
-  // async getAllCategories
+  async getCategoryById(id: string): Promise<Category> {
+    return await await this.checkExistance(id);
+  }
+
+  async deleteCategory(id: string) {
+    const category = await this.checkExistance(id);
+    this.categoryRepo.remove(category);
+  }
+
+  async updateCategory(id: string, updateDto: UpdateCategoryDTO) {
+    try {
+      await this.checkExistance(id);
+      return await this.categoryRepo.update({ id }, updateDto);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  private async checkExistance(id: string): Promise<Category> {
+    const category = await this.categoryRepo.findOne({ where: { id } });
+    if (!category) throw new NotFoundException('Category not found!');
+    return category;
+  }
 }
