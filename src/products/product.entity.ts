@@ -1,5 +1,5 @@
 import { Category } from 'src/categories/category.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, BeforeInsert, BeforeUpdate } from 'typeorm';
 
 @Entity()
 export class Product {
@@ -15,6 +15,9 @@ export class Product {
   @Column('decimal')
   price: number;
 
+  @Column('decimal')
+  after_discount_price: number;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
@@ -28,4 +31,15 @@ export class Product {
     inverseJoinColumn:{name:'category_id',referencedColumnName:"id"},
   })
   categories:Category[];
+
+  
+  @BeforeInsert()
+  beforeInsert() {
+    this.created_at = new Date();
+  }
+
+  @BeforeUpdate()
+  beforeUpdate() {
+    this.updated_at = new Date();
+  }
 }

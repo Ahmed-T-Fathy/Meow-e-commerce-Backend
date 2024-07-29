@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ProductsService {}
+export class ProductsService {
+
+    async addProduct(data:ProductDTO)
+}
