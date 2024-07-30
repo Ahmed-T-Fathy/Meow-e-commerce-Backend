@@ -1,9 +1,8 @@
 import { Transform, Type } from "class-transformer";
-import { IsInt, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsDecimal, IsInt, IsOptional, IsString, Max, Min } from "class-validator";
 import { transformerOrderBy } from "../../transformers/transform-orderby.transformer";
 
-export class CategoriesPaginationQueryDTO  {
-    
+export class ProductsPaginationQueryDTO{
     @IsOptional()
     @Type(()=>Number)
     @IsInt()
@@ -18,6 +17,10 @@ export class CategoriesPaginationQueryDTO  {
     limit?:number=10;
 
     @IsOptional()
+    @IsString()
+    description?:string;
+
+    @IsOptional()
     @Transform(transformerOrderBy)
     orderBy?: [{field:string,direction:'ASC'|'DESC'}];
 
@@ -26,6 +29,11 @@ export class CategoriesPaginationQueryDTO  {
     name?:string;
 
     @IsOptional()
-    @IsString()
-    description?:string;
+    @IsDecimal()
+    price?:number;
+
+    @IsOptional()
+    @IsDecimal()
+    after_discount_price?:number;
+
 }

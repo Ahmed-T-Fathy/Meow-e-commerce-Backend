@@ -21,7 +21,6 @@ import { CouponsModule } from './coupons/coupons.module';
 import { PhotosModule } from './photos/photos.module';
 import { CategoriesController } from './categories/categories.controller';
 import { Category } from './categories/category.entity';
-import { ProductCategoryModule } from './product-category/product-category.module';
 
 @Module({
   imports: [
@@ -44,7 +43,7 @@ import { ProductCategoryModule } from './product-category/product-category.modul
           username: config.get<string>('DB_USERNAME'),
           password: config.get<string>('DB_PASSWORD'),
           database: config.get<string>('DB_DATABASE'),
-          entities: [Category],
+          entities: ['dist/**/*.entity{.ts,.js}'],
           logging: true,
           synchronize: true,
         }
@@ -62,7 +61,6 @@ import { ProductCategoryModule } from './product-category/product-category.modul
     ProductVariantsModule,
     CouponsModule,
     PhotosModule,
-    ProductCategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -16,4 +16,11 @@ export class ProductDTO {
 
   @Expose()
   categories:Category[];
+
+  @Expose()
+  created_at:Date;
+
+  @Expose()
+  updated_at:Date;
+
 }

@@ -70,7 +70,7 @@ export class CategoriesService {
   }
 
   private async checkExistance(id: string): Promise<Category> {
-    const category = await this.categoryRepo.findOne({ where: { id } });
+    const category = await this.getCategoryById(id);
     if (!category) throw new NotFoundException('Category not found!');
     return category;
   }

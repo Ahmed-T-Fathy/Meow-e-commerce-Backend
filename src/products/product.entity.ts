@@ -15,7 +15,7 @@ export class Product {
   @Column('decimal')
   price: number;
 
-  @Column('decimal')
+  @Column({type:'decimal',nullable:true})
   after_discount_price: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -24,7 +24,7 @@ export class Product {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToMany(()=>Category,(category)=>category.products)
+  @ManyToMany(()=>Category,(category)=>category.products, { cascade: true })
   @JoinTable({
     name:"product_categories",
     joinColumn:{ name:'product_id',referencedColumnName:"id"},

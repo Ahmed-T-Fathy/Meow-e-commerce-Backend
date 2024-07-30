@@ -1,8 +1,8 @@
 import { Expose } from 'class-transformer';
-import { IsArray, IsDecimal, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDecimal, IsNotEmpty, IsOptional, IsString, IsUUID ,ValidatorConstraint} from 'class-validator';
 import { Category } from 'src/categories/category.entity';
 
-export class ProductDTO {
+export class CreateProductDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -21,5 +21,6 @@ export class ProductDTO {
 
   @IsArray()
   @IsString({ each: true })
+  @IsUUID('4',{each:true})
   categories: string[];
 }
