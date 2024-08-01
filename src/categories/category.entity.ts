@@ -1,3 +1,4 @@
+import { Photo } from 'src/photos/photo.entity';
 import { Product } from 'src/products/product.entity';
 import {
   Entity,

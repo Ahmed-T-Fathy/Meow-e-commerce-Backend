@@ -1,4 +1,5 @@
 import { Category } from 'src/categories/category.entity';
+import { Photo } from 'src/photos/photo.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, BeforeInsert, BeforeUpdate } from 'typeorm';
 
 @Entity()
@@ -31,6 +32,9 @@ export class Product {
     inverseJoinColumn:{name:'category_id',referencedColumnName:"id"},
   })
   categories:Category[];
+
+  @OneToMany(()=>Product,(product)=>product.photos)
+  photos:Photo[];
 
   
   @BeforeInsert()
