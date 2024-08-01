@@ -1,5 +1,6 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { Category } from 'src/categories/category.entity';
+import { CategoryDTO } from 'src/categories/dtos/category.dto';
 
 export class ProductDTO {
   @Expose()
@@ -15,7 +16,8 @@ export class ProductDTO {
   after_discount_price: number;
 
   @Expose()
-  categories:Category[];
+  @Type(() => CategoryDTO)
+  categories:CategoryDTO[];
 
   @Expose()
   created_at:Date;

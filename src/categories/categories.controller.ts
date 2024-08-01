@@ -64,7 +64,8 @@ export class CategoriesController {
       throw new BadRequestException('there is no data to update!')
     return await this.categorySevice.updateCategory(paramObj.id, updateObj);
   }
-
+  
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
   async deleteCategory(@Param() paramObj: CategoryIdDTO){
     return await this.categorySevice.deleteCategory(paramObj.id);
