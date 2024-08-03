@@ -21,6 +21,10 @@ import { CouponsModule } from './coupons/coupons.module';
 import { PhotosModule } from './photos/photos.module';
 import { CategoriesController } from './categories/categories.controller';
 import { Category } from './categories/category.entity';
+import { MulterModule } from '@nestjs/platform-express';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { ColorsModule } from './colors/colors.module';
 
 @Module({
   imports: [
@@ -61,6 +65,11 @@ import { Category } from './categories/category.entity';
     ProductVariantsModule,
     CouponsModule,
     PhotosModule,
+    ServeStaticModule.forRoot({
+      rootPath:join(__dirname,'..','uploads')
+    }),
+    ColorsModule
+    // MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],

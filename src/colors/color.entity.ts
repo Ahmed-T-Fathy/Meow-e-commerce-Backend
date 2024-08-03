@@ -1,17 +1,25 @@
-import { Color } from 'src/colors/color.entity';
+import { Photo } from 'src/photos/photo.entity';
 import { Product } from 'src/products/product.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BeforeInsert, BeforeUpdate } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  BeforeInsert,
+  BeforeUpdate,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
-export class Photo {
+export class Color {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  link: string;
+  color: string;
 
-  @Column({ default: false })
-  is_main: boolean;
+  @Column()
+  code: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
@@ -19,11 +27,8 @@ export class Photo {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(()=>Product,(product)=>product.photos)
-  product:Product;
-
-  @ManyToOne(()=>Color,(color)=>color.photos)
-  color:Color;
+  @OneToMany(() => Color, (color) => color.photos)
+  photos: Photo[];
 
   @BeforeInsert()
   beforeInsert() {
@@ -34,5 +39,4 @@ export class Photo {
   beforeUpdate() {
     this.updated_at = new Date();
   }
-
 }
