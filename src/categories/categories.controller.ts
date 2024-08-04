@@ -27,7 +27,7 @@ export class CategoriesController {
   constructor(private categorySevice: CategoriesService) {}
 
   @Serialize(CategoryDTO)
-  @Post('/create')
+  @Post('')
   async createCategories(@Body() categoryDto: CreateCategoryDTO) {
     return await this.categorySevice.createCategory(categoryDto);
   }

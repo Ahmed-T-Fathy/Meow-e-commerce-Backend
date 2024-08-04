@@ -19,7 +19,7 @@ export class ColorsService {
   async getColorById(id: string): Promise<Color> {
     const color = await this.colorRepo.findOne({ where: { id } });
     if (!color) {
-      throw new NotFoundException('color not found!');
+      throw new NotFoundException('Color not found!');
     }
     return color;
   }
@@ -29,7 +29,7 @@ export class ColorsService {
     await this.colorRepo.remove(color);
   }
 
-  async paginateCategories(
+  async paginateColors(
     options: IPaginationOptions,
     other: ColorsPaginationQueryDTO,
   ): Promise<Pagination<Color>> {
