@@ -1,4 +1,5 @@
 import { Photo } from 'src/photos/photo.entity';
+import { ProductVariant } from 'src/product-variants/product-variant.entity';
 import { Product } from 'src/products/product.entity';
 import {
   Entity,
@@ -29,6 +30,9 @@ export class Color {
 
   @OneToMany(() => Color, (color) => color.photos)
   photos: Photo[];
+
+  @OneToMany(() => Color, (color) => color.product_variant)
+  product_variant:ProductVariant[];
 
   @BeforeInsert()
   beforeInsert() {

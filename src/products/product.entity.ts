@@ -1,5 +1,6 @@
 import { Category } from 'src/categories/category.entity';
 import { Photo } from 'src/photos/photo.entity';
+import { ProductVariant } from 'src/product-variants/product-variant.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, ManyToMany, JoinTable, BeforeInsert, BeforeUpdate } from 'typeorm';
 
 @Entity()
@@ -36,7 +37,9 @@ export class Product {
   @OneToMany(()=>Product,(product)=>product.photos)
   photos:Photo[];
 
-  
+  @OneToMany(()=>Product,(product)=>product.product_variant)
+  product_variant:ProductVariant[];
+
   @BeforeInsert()
   beforeInsert() {
     this.created_at = new Date();
