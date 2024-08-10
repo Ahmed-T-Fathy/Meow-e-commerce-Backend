@@ -25,6 +25,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ColorsModule } from './colors/colors.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -68,7 +69,8 @@ import { ColorsModule } from './colors/colors.module';
     ServeStaticModule.forRoot({
       rootPath:join(__dirname,'..','uploads')
     }),
-    ColorsModule
+    ColorsModule,
+    AuthModule
     // MulterModule.register(),
   ],
   controllers: [AppController],

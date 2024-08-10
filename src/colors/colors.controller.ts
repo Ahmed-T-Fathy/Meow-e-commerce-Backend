@@ -40,6 +40,7 @@ export class ColorsController {
   async getColorById(@Param() paramObj: ColorIdDTO): Promise<Color> {
     return await this.colorService.getColorById(paramObj.id);
   }
+  
   @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('/:id')
   async updateColor(

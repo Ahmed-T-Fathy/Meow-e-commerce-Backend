@@ -1,8 +1,16 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Max,
+  Min,
+} from 'class-validator';
 import { transformerOrderBy } from '../../transformers/transform-orderby.transformer';
 
-export class PhotosPaginationDTO {
+export class VariantsPaginationDTO {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -29,7 +37,6 @@ export class PhotosPaginationDTO {
   product?: string;
   
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === 'false' ? value === 'true' : value)
-  is_main?: boolean;
+  @IsUUID()
+  size?: string;
 }

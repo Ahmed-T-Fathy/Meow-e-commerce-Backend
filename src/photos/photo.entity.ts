@@ -29,10 +29,10 @@ export class Photo {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @ManyToOne(() => Product, (product) => product.photos)
+  @ManyToOne(() => Product, (product) => product.photos, { onDelete: 'SET NULL' })
   product: Product;
 
-  @ManyToOne(() => Color, (color) => color.photos)
+  @ManyToOne(() => Color, (color) => color.photos, { onDelete: 'SET NULL' })
   color: Color;
 
   @BeforeInsert()

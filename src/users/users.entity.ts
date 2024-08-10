@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 import { Role } from './roles.enum';
 import { randomBytes, scrypt as _scrypt } from 'crypto';
@@ -13,6 +14,7 @@ import * as jwt from 'jsonwebtoken';
 // const scrypt = promisify(_scrypt);
 
 @Entity()
+@Unique("phone_mail_unique_constraint",['email','phone'])
 export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -20,11 +22,17 @@ export class Users {
   @Column()
   username: string;
 
-  @Column()
+  @Column({unique:true})
   email: string;
+
+  @Column({unique:true})
+  phone: string;
 
   @Column()
   password: string;
+
+  @Column({ type: 'boolean', default: false })
+  is_verified:boolean;
 
   @Column({ type: 'text', default: Role.User })
   role: Role;
