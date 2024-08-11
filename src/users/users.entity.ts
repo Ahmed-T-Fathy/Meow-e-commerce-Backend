@@ -3,6 +3,7 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -11,6 +12,7 @@ import { randomBytes, scrypt as _scrypt } from 'crypto';
 import { promisify } from 'util';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { Order } from 'src/orders/order.entity';
 // const scrypt = promisify(_scrypt);
 
 @Entity()
@@ -36,6 +38,9 @@ export class Users {
 
   @Column({ type: 'text', default: Role.User })
   role: Role;
+
+  @OneToMany(()=>Users,(users)=>users.orders)
+  orders:Order[];
 
   password_updated: boolean = false;
 

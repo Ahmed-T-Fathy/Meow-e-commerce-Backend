@@ -40,9 +40,9 @@ export class ProductVariantsController {
   @Serialize(ProductVariantDTO)
   @Get('/:id')
   async getVariantById(@Param() paramObj: UUIDDTO) {
-    log(await this.productVariantsService.getVariantById(
-      paramObj.id,
-    ))
+    // log(await this.productVariantsService.getVariantById(
+    //   paramObj.id,
+    // ))
     return await this.productVariantsService.getVariantById(
       paramObj.id,
     );
@@ -61,7 +61,7 @@ export class ProductVariantsController {
   
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('/:id')
-  async deleteCategory(@Param() paramObj: UUIDDTO){
+  async deleteVariant(@Param() paramObj: UUIDDTO){
     return await this.productVariantsService.deleteVariant(paramObj.id);
   }
 

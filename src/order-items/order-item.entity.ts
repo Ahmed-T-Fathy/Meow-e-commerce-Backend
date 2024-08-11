@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Order } from 'src/orders/order.entity';
+import { ProductVariant } from 'src/product-variants/product-variant.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity()
 export class OrderItem {
@@ -10,6 +12,14 @@ export class OrderItem {
 
   @Column('decimal')
   price: number;
+
+  @ManyToOne(()=>ProductVariant,(productVariant) => productVariant.order_items, { nullable: false,onDelete:'CASCADE' })
+  @JoinColumn({ name: 'product_variant_id' })
+  product_variant:ProductVariant;
+
+  @ManyToOne(()=>Order,(order)=>order.order_items, { nullable: false,onDelete:'CASCADE' })
+  @JoinColumn({ name: 'order_id' })
+  order:Order;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
