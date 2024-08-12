@@ -1,6 +1,6 @@
 import { Order } from 'src/orders/order.entity';
 import { ProductVariant } from 'src/product-variants/product-variant.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 
 @Entity()
 export class OrderItem {
@@ -13,7 +13,7 @@ export class OrderItem {
   @Column('decimal')
   price: number;
 
-  @ManyToOne(()=>ProductVariant,(productVariant) => productVariant.order_items, { nullable: false,onDelete:'CASCADE' })
+  @ManyToOne(()=>ProductVariant,(productVariant) => productVariant.order_items, {onDelete:'SET NULL' })
   @JoinColumn({ name: 'product_variant_id' })
   product_variant:ProductVariant;
 
@@ -26,4 +26,14 @@ export class OrderItem {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @BeforeInsert()
+  beforeInsert() {
+    this.created_at = new Date();
+  }
+
+  @BeforeUpdate()
+  beforeUpdate() {
+    this.updated_at = new Date();
+  }
 }

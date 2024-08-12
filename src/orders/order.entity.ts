@@ -7,6 +7,8 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 
 @Entity()
@@ -42,4 +44,14 @@ export class Order {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  @BeforeInsert()
+  beforeInsert() {
+    this.created_at = new Date();
+  }
+
+  @BeforeUpdate()
+  beforeUpdate() {
+    this.updated_at = new Date();
+  }
 }

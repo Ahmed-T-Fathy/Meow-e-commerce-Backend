@@ -1,3 +1,4 @@
+import { BasketItem } from 'src/basket-items/basket-item.entity';
 import { Color } from 'src/colors/color.entity';
 import { OrderItem } from 'src/order-items/order-item.entity';
 import { Product } from 'src/products/product.entity';
@@ -24,6 +25,9 @@ export class ProductVariant {
 
   @OneToMany(()=>ProductVariant,(productVariant) => productVariant.order_items)
   order_items:OrderItem[];
+
+  @OneToMany(()=>ProductVariant,(productVariant) => productVariant.basket_items)
+  basket_items:BasketItem[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

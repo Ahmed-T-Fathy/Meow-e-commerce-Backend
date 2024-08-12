@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -13,10 +14,11 @@ import { promisify } from 'util';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { Order } from 'src/orders/order.entity';
+import { Basket } from 'src/basket/basket.entity';
 // const scrypt = promisify(_scrypt);
 
 @Entity()
-@Unique("phone_mail_unique_constraint",['email','phone'])
+@Unique('phone_mail_unique_constraint', ['email', 'phone'])
 export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -24,23 +26,26 @@ export class Users {
   @Column()
   username: string;
 
-  @Column({unique:true})
+  @Column({ unique: true })
   email: string;
 
-  @Column({unique:true})
+  @Column({ unique: true })
   phone: string;
 
   @Column()
   password: string;
 
   @Column({ type: 'boolean', default: false })
-  is_verified:boolean;
+  is_verified: boolean;
 
   @Column({ type: 'text', default: Role.User })
   role: Role;
 
-  @OneToMany(()=>Users,(users)=>users.orders)
-  orders:Order[];
+  @OneToOne(() => Basket, (basket) => basket.user)
+  basket: Basket;
+
+  @OneToMany(() => Users, (users) => users.orders)
+  orders: Order[];
 
   password_updated: boolean = false;
 
@@ -75,7 +80,7 @@ export class Users {
     return await bcrypt.compare(password, this.password);
   }
 
-  async generateToken(): Promise<string>{
+  async generateToken(): Promise<string> {
     const payload = { id: this.id };
     const secret = process.env.JWT_SECRET;
     return await jwt.sign(payload, secret, { expiresIn: '1h' });

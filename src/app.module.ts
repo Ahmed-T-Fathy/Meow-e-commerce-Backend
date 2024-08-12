@@ -26,16 +26,17 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ColorsModule } from './colors/colors.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal:true,
-      envFilePath:'.env'
+      isGlobal: true,
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config:ConfigService)=>{
+      useFactory: (config: ConfigService) => {
         // console.log(config.get<string>('DB_HOST'))
         // console.log(config.get<string>('DB_PORT'))
         // console.log(config.get<string>('DB_USERNAME'))
@@ -51,7 +52,7 @@ import { AuthModule } from './auth/auth.module';
           entities: ['dist/**/*.entity{.ts,.js}'],
           logging: true,
           synchronize: true,
-        }
+        };
       },
     }),
     UsersModule,
@@ -67,13 +68,14 @@ import { AuthModule } from './auth/auth.module';
     CouponsModule,
     PhotosModule,
     ServeStaticModule.forRoot({
-      rootPath:join(__dirname,'..','uploads')
+      rootPath: join(__dirname, '..', 'uploads'),
     }),
     ColorsModule,
-    AuthModule
+    AuthModule,
     // MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],
+  exports:[ConfigModule]
 })
 export class AppModule {}
