@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeOrmConfig } from './typeorm';
@@ -27,6 +27,7 @@ import { join } from 'path';
 import { ColorsModule } from './colors/colors.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { LoggingMiddleWare } from './middlewares/logging.middleware';
 
 @Module({
   imports: [
@@ -78,4 +79,8 @@ import { JwtModule } from '@nestjs/jwt';
   providers: [AppService],
   exports:[ConfigModule]
 })
-export class AppModule {}
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggingMiddleWare).forRoutes('*');
+  }
+}

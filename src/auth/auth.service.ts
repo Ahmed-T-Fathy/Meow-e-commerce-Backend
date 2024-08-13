@@ -44,6 +44,6 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password!');
     }
-    return { token: await user.generateToken() };
+    return { access_token: await user.generateToken() };
   }
 }

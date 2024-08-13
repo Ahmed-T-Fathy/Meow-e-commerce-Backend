@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { log } from 'console';
@@ -9,29 +14,28 @@ import { UsersService } from 'src/users/users.service';
 export class AuthGaurd implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    private userService:UsersService
+    private userService: UsersService,
   ) {}
 
-  async canActivate(
-    context: ExecutionContext,
-  ):Promise<boolean>{
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-
-    try {
-      const payload = await this.jwtService.verify(token);
-      // console.log(payload);
-      
-      // console.log(token);
-      // console.log(payload);
-      // console.log(this.config.get<string>('jwt_secret'));
-      const user=await this.userService.findUserById(payload.userId)
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      request['user'] = user;
-    } catch {
-      throw new UnauthorizedException();
+    if (!token) {
+      throw new UnauthorizedException('Token is requried!');
     }
+
+    const payload = await this.jwtService.verify(token);
+    // console.log(payload);
+
+    if (!payload) throw new UnauthorizedException('In valid token!');
+    // console.log(token);
+    // console.log(payload);
+    // console.log(this.config.get<string>('jwt_secret'));
+    const user = await this.userService.findUserById(payload.userId);
+    // 💡 We're assigning the payload to the request object here
+    // so that we can access it in our route handlers
+    request['user'] = user;
+
     return true;
   }
 
