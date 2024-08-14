@@ -5,14 +5,11 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, BeforeInsert, Before
 
 @Entity()
 export class BasketItem {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column('int')
   quantity: number;
-
-  @Column('decimal')
-  price: number;
 
   @ManyToOne(()=>ProductVariant,(productVariant) => productVariant.basket_items, { nullable: false,onDelete:'CASCADE' })
   @JoinColumn({ name: 'product_variant_id' })

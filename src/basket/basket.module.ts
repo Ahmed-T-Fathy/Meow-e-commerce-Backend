@@ -12,6 +12,7 @@ import { AuthGaurd } from 'src/auth/guards/auth.guard';
   imports:[TypeOrmModule.forFeature([Basket]),
   AuthModule],
   controllers: [BasketController],
-  providers: [BasketService]
+  providers: [BasketService],
+  exports:[BasketService]
 })
 export class BasketModule {}
