@@ -26,6 +26,9 @@ export class Basket {
   @OneToMany(()=>Basket,(basket)=>basket.basket_items)
   basket_items:BasketItem[];
 
+  @Column({default:false})
+  reminder_sent:boolean;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 

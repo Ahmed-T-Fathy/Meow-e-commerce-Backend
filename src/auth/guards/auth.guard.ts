@@ -18,25 +18,29 @@ export class AuthGaurd implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
-    if (!token) {
-      throw new UnauthorizedException('Token is requried!');
+    try {
+      const request = context.switchToHttp().getRequest();
+      const token = this.extractTokenFromHeader(request);
+      if (!token) {
+        throw new UnauthorizedException('Token is requried!');
+      }
+
+      const payload = await this.jwtService.verify(token);
+      // console.log(payload);
+
+      if (!payload) throw new UnauthorizedException('In valid token!');
+      // console.log(token);
+      // console.log(payload);
+      // console.log(this.config.get<string>('jwt_secret'));
+      const user = await this.userService.findUserById(payload.userId);
+      // 💡 We're assigning the payload to the request object here
+      // so that we can access it in our route handlers
+      request['user'] = user;
+
+      return true;
+    } catch (err) {
+      throw new UnauthorizedException(err);
     }
-
-    const payload = await this.jwtService.verify(token);
-    // console.log(payload);
-
-    if (!payload) throw new UnauthorizedException('In valid token!');
-    // console.log(token);
-    // console.log(payload);
-    // console.log(this.config.get<string>('jwt_secret'));
-    const user = await this.userService.findUserById(payload.userId);
-    // 💡 We're assigning the payload to the request object here
-    // so that we can access it in our route handlers
-    request['user'] = user;
-
-    return true;
   }
 
   private extractTokenFromHeader(request) {

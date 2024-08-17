@@ -44,14 +44,16 @@ export class BasketItemsService {
         basket: { id: basket.id },
       },
     });
-    console.log(itemFound);
+    // console.log(itemFound);
 
     if (itemFound)
       throw new ConflictException(
         'This product is alread in basket just upadte its quntity',
       );
 
-    return await this.basketItemRepo.save(item);
+    const saved_basket = await this.basketItemRepo.save(item);
+    await this.basketService.updateBasketDateAndreminderFlag(data.basket_id);
+    return saved_basket;
   }
   async UpdateBasketItemQuntity(id: string, data: UpdateBasketItemDTO) {
     const item = await this.getBasketItemById(id);
@@ -60,6 +62,8 @@ export class BasketItemsService {
         'Invalid Quantity it must be more than 1 and less than or equeal stock quantity!',
       );
     }
+    await this.basketService.updateBasketDateAndreminderFlag(item.basket?.id);
+
     return await this.basketItemRepo.update(
       { id },
       { quantity: data.quantity },
@@ -82,10 +86,11 @@ export class BasketItemsService {
 
   async deleteBasketItem(id: string) {
     const item = await this.getBasketItemById(id);
+    await this.basketService.updateBasketDateAndreminderFlag(item.basket?.id);
     await this.basketItemRepo.remove(item);
   }
 
-  async paginateColors(
+  async paginateItems(
     options: IPaginationOptions,
     other: BasketItemsPaginationQueryDTO,
   ): Promise<Pagination<BasketItem>> {

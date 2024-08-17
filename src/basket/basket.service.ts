@@ -40,4 +40,9 @@ export class BasketService {
     if (!basket) throw new NotFoundException('Basket not found!');
     return basket;
   }
+
+  async updateBasketDateAndreminderFlag(id:string){
+    await this.getBasketById(id);
+    await this.basketRepo.update({id},{updated_at:new Date(),reminder_sent:false});
+}
 }

@@ -25,7 +25,7 @@ export class BasketItemsController {
     const page = queryDto?.page;
     const limit = queryDto?.limit;
 
-    return await this.basketItemsService.paginateColors(
+    return await this.basketItemsService.paginateItems(
       {
         page,
         limit,
