@@ -10,23 +10,14 @@ import {
   BeforeInsert,
   BeforeUpdate,
 } from 'typeorm';
+import { Orders_Status } from './order-status';
 
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    type: 'enum',
-    enum: [
-      'outstanding',
-      'processing',
-      'shipped',
-      'delivered',
-      'cancelled',
-      'refunded',
-    ],
-  })
+  @Column({ type: 'text', default: Orders_Status.outstanding})
   status: string;
 
   @Column('decimal')

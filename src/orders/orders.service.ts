@@ -19,6 +19,7 @@ export class OrdersService {
     @InjectRepository(Users) private usersRepo: Repository<Users>,
   ) {}
 
+  // https://chatgpt.com/c/a78c554c-b073-4752-8596-7612c6ac8aac
   async createOrder(data: CreateOrderDTO) {
     const queryBuilder = this.orderRepo.createQueryBuilder('o');
     queryBuilder.where('o.user_id = :user_id', { user_id: data.user_id });
