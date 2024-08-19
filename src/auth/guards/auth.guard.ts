@@ -18,12 +18,12 @@ export class AuthGaurd implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('Token is requried!');
+    }
     try {
-      const request = context.switchToHttp().getRequest();
-      const token = this.extractTokenFromHeader(request);
-      if (!token) {
-        throw new UnauthorizedException('Token is requried!');
-      }
 
       const payload = await this.jwtService.verify(token);
       // console.log(payload);

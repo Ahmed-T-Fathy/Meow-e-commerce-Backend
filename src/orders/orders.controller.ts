@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersPaginationDTO } from './dtos/orders-pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -7,16 +7,21 @@ import { UUIDDTO } from 'src/dto/UUID-dto';
 import { UpdateOrderDTO } from './dtos/update-order.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { OrderDTO } from './dtos/order.dto';
+import { AuthGaurd } from 'src/auth/guards/auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/users/roles.enum';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private orderService: OrdersService) {}
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin,Role.User)
+  @UseGuards(AuthGaurd)
   @Post('')
-  async createOrder() {
-    return this.orderService.createOrder({
-      user_id: 'd57a5b79-a351-46e4-9742-22e3ed006edf',
-    });
+  async createOrder(@Request() req) {
+    return this.orderService.createOrder(req.user);
   }
 
   @Get('')

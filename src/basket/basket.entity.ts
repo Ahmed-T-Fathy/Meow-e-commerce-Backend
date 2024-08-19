@@ -23,7 +23,7 @@ export class Basket {
   @JoinColumn({ name: 'user_id' })
   user: Users;
 
-  @OneToMany(()=>Basket,(basket)=>basket.basket_items)
+  @OneToMany(()=>BasketItem,(basket)=>basket.basket)
   basket_items:BasketItem[];
 
   @Column({default:false})
