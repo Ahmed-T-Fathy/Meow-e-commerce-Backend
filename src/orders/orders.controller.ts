@@ -16,6 +16,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 export class OrdersController {
   constructor(private orderService: OrdersService) {}
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(RolesGuard)
   @Roles(Role.Admin,Role.User)
   @UseGuards(AuthGaurd)

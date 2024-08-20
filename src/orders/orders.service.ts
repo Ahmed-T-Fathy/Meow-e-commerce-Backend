@@ -19,6 +19,7 @@ import { UpdateOrderDTO } from './dtos/update-order.dto';
 import { Orders_Status } from './order-status';
 import { Basket } from 'src/basket/basket.entity';
 import { OrderItem } from 'src/order-items/order-item.entity';
+import { BasketItem } from 'src/basket-items/basket-item.entity';
 
 @Injectable()
 export class OrdersService {
@@ -36,8 +37,6 @@ export class OrdersService {
     await queryRunner.startTransaction();
     try {
       //create new order instance
-      console.log(user);
-
       const order = new Order();
       order.user = user;
       order.status = Orders_Status.outstanding;
@@ -53,10 +52,15 @@ export class OrdersService {
           'basket_items.product_variant.product',
         ],
       });
+
       if (!basket) throw new NotFoundException('User have no basket!');
+
       if (basket.basket_items.length === 0)
         throw new NotFoundException('There is no items in the basket!');
-      const order_items=await Promise.all(basket.basket_items.map( async item=>{
+
+
+      await Promise.all(basket.basket_items.map( async item=>{
+
         // create order items form the product item
         const order_item=new OrderItem();
         order_item.quantity=item.quantity;
@@ -66,18 +70,24 @@ export class OrdersService {
 
         await queryRunner.manager.save(order_item);
         const product_variant=item.product_variant;
+
         if(product_variant.stock<item.quantity)
           throw new ConflictException(`This in valid quantity while the product variant: ${product_variant}`);
+
         product_variant.stock -= item.quantity;
+
         await queryRunner.manager.save(product_variant);
 
         return order_item;
       }))
-      console.log(order_items);
       
+      await queryRunner.manager.delete(BasketItem,{basket});
       
-      
-      throw new Error()
+      // Commit transaction
+      await queryRunner.commitTransaction();
+
+
+      return savedOrder;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(err);
