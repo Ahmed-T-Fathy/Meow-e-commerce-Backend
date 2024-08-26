@@ -10,6 +10,7 @@ import { Role } from 'src/users/roles.enum';
 import { Users } from 'src/users/users.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { LoginDataDTO } from './dtos/login.dto';
+import { Roles } from './decorators/roles.decorator';
 
 @Injectable()
 export class AuthService {
@@ -17,9 +18,12 @@ export class AuthService {
 
   async signup(data: CreateUserDTO) {
     const user = await this.usersRepo.find({
-      where: { email: data.email, phone: data.phone},
+      where: [
+        { email: data.email },
+        { phone: data.phone }
+      ]
     });
-
+    
     if (user.length !== 0)
       throw new ConflictException('This email or phone already in exist!');
 
@@ -36,6 +40,10 @@ export class AuthService {
       where: { email: data.email },
     });
     if (!user) throw new UnauthorizedException('Invalid email or password!');
+    // user.is_verified=true;
+    // user.role=Role.Admin;
+    // await this.usersRepo.save(user);
+    console.log(user);
     
     if (!user.is_verified) throw new UnauthorizedException('you are not verified!');
     

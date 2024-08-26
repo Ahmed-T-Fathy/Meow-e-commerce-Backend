@@ -31,7 +31,7 @@ export class OrdersService {
   ) {}
 
   // https://chatgpt.com/c/a78c554c-b073-4752-8596-7612c6ac8aac
-  async createOrder(user: Users) {
+  async createOrder(user: Users,data:CreateOrderDTO) {
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -41,6 +41,7 @@ export class OrdersService {
       order.user = user;
       order.status = Orders_Status.outstanding;
       order.total_price=0;
+      order.address=data.address;
       const savedOrder = await queryRunner.manager.save(order);
 
       //get user's basket with eager load his items

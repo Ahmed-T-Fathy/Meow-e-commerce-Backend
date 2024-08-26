@@ -1,9 +1,7 @@
 export enum Orders_Status {
-    outstanding = 'outstanding',
-    processing = 'processing',
-    shipped = 'shipped',
-    delivered = 'delivered',
-    cancelled = 'cancelled',
-    refunded = 'refunded',
+    outstanding = 'Outstanding',
+    processing = 'Processing',
+    completed = 'Completed',
+    refunded = 'Refunded',
+    cancelled = 'Cancelled',
   }
-

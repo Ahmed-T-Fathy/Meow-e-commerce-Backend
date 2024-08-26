@@ -1,9 +1,12 @@
-import { Expose } from "class-transformer";
+import { Expose } from 'class-transformer';
 
-export class ColorDTO{
-    @Expose()
-    color:string;
+export class ColorDTO {
+  @Expose()
+  id: string;
 
-    @Expose()
-    code:string;
+  @Expose()
+  color: string;
+
+  @Expose()
+  code: string;
 }

@@ -1,18 +1,21 @@
-import { Expose } from "class-transformer";
+import { Expose } from 'class-transformer';
 
-export class UserDTO{
-    @Expose()
-    username:string;
+export class UserDTO {
+  @Expose()
+  id: string;
 
-    @Expose()
-    email:string;
+  @Expose()
+  username: string;
 
-    @Expose()
-    phone:string;
+  @Expose()
+  email: string;
 
-    @Expose()
-    role:string;
+  @Expose()
+  phone: string;
 
-    @Expose()
-    is_verified:boolean;
+  @Expose()
+  role: string;
+
+  @Expose()
+  is_verified: boolean;
 }

@@ -68,15 +68,19 @@ export class Users {
     this.created_at = new Date();
   }
 
-  @BeforeUpdate()
-  async hashPasswordBeforUpdate() {
-    // if (this.password_updated) {
-    //   // const salt: string = await randomBytes(8).toString('hex');
-    //   // const hash: Buffer = (await scrypt(this.password, salt, 32)) as Buffer;
-    //   // const result: string = salt + '.' + hash.toString('hex');
-    //   this.password = await bcrypt.hash(this.password, 10);
-    //   this.password_updated = false;
-    // }
+  // @BeforeUpdate()
+  // async hashPasswordBeforUpdate() {
+  //   // if (this.password_updated) {
+  //   //   // const salt: string = await randomBytes(8).toString('hex');
+  //   //   // const hash: Buffer = (await scrypt(this.password, salt, 32)) as Buffer;
+  //   //   // const result: string = salt + '.' + hash.toString('hex');
+  //   //   this.password = await bcrypt.hash(this.password, 10);
+  //   //   this.password_updated = false;
+  //   // }
+  //   this.updated_at = new Date();
+  // }
+  async hashPassword(newPass:string){
+    this.password=await bcrypt.hash(this.password, 10);
     this.updated_at = new Date();
   }
   // @AfterLoad()

@@ -11,6 +11,7 @@ import { AuthGaurd } from 'src/auth/guards/auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/users/roles.enum';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { CreateOrderDTO } from './dtos/create-order.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -21,8 +22,8 @@ export class OrdersController {
   @Roles(Role.Admin,Role.User)
   @UseGuards(AuthGaurd)
   @Post('')
-  async createOrder(@Request() req) {
-    return this.orderService.createOrder(req.user);
+  async createOrder(@Request() req,@Body() data:CreateOrderDTO) {
+    return this.orderService.createOrder(req.user,data);
   }
 
   @Get('')

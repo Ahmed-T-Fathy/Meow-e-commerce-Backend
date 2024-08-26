@@ -4,6 +4,9 @@ import { CategoryDTO } from 'src/categories/dtos/category.dto';
 
 export class ProductDTO {
   @Expose()
+  id: string;
+  
+  @Expose()
   name: string;
 
   @Expose()
@@ -17,12 +20,11 @@ export class ProductDTO {
 
   @Expose()
   @Type(() => CategoryDTO)
-  categories:CategoryDTO[];
+  categories: CategoryDTO[];
 
   @Expose()
-  created_at:Date;
+  created_at: Date;
 
   @Expose()
-  updated_at:Date;
-
+  updated_at: Date;
 }

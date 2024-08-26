@@ -10,6 +10,7 @@ import {
   Min,
 } from 'class-validator';
 import { transformerOrderBy } from '../../transformers/transform-orderby.transformer';
+import { Orders_Status } from '../order-status';
 
 export class OrdersPaginationDTO{
     @IsOptional()
@@ -30,14 +31,7 @@ export class OrdersPaginationDTO{
     orderBy?: [{ field: string; direction: 'ASC' | 'DESC' }];
   
     @IsOptional()
-    @IsEnum([
-        'outstanding',
-        'processing',
-        'shipped',
-        'delivered',
-        'cancelled',
-        'refunded',
-      ])
+    @IsEnum(Orders_Status)
     status?: string;
   
     @IsOptional()

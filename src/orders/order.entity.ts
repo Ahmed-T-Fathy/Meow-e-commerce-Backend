@@ -23,6 +23,9 @@ export class Order {
   @Column('decimal')
   total_price: number;
 
+  @Column({nullable:true})
+  address:string;
+
   @OneToMany(() => Order, (order) => order.order_items)
   order_items: OrderItem[];
 

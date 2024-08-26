@@ -7,7 +7,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersController } from './users/users.controller';
 import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
-import { AddressesModule } from './addresses/addresses.module';
 import { BasketModule } from './basket/basket.module';
 import { BasketItemsModule } from './basket-items/basket-items.module';
 import { OrdersModule } from './orders/orders.module';
@@ -38,26 +37,35 @@ import { LoggingMiddleWare } from './middlewares/logging.middleware';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        // console.log(config.get<string>('DB_HOST'))
-        // console.log(config.get<string>('DB_PORT'))
-        // console.log(config.get<string>('DB_USERNAME'))
-        // console.log(config.get<string>('DB_PASSWORD'))
-        // console.log(config.get<string>('DB_DATABASE'))
         return {
           type: 'postgres',
-          host: config.get<string>('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get<string>('DB_USERNAME'),
-          password: config.get<string>('DB_PASSWORD'),
-          database: config.get<string>('DB_DATABASE'),
+          url: config.get<string>('DATABASE_URL'),
+          ssl: {
+            rejectUnauthorized: false, // Set to true if you have a valid certificate
+          },
           entities: ['dist/**/*.entity{.ts,.js}'],
           logging: true,
           synchronize: true,
         };
       },
     }),
+    // TypeOrmModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => {
+    //    return {
+    //       type: 'postgres',
+    //       host: config.get<string>('DB_HOST'),
+    //       port: config.get<number>('DB_PORT'),
+    //       username: config.get<string>('DB_USERNAME'),
+    //       password: config.get<string>('DB_PASSWORD'),
+    //       database: config.get<string>('DB_DATABASE'),
+    //       entities: ['dist/**/*.entity{.ts,.js}'],
+    //       logging: true,
+    //       synchronize: true,
+    //     };
+    //   },
+    // }),
     UsersModule,
-    AddressesModule,
     BasketModule,
     BasketItemsModule,
     OrdersModule,
@@ -77,9 +85,9 @@ import { LoggingMiddleWare } from './middlewares/logging.middleware';
   ],
   controllers: [AppController],
   providers: [AppService],
-  exports:[ConfigModule]
+  exports: [ConfigModule],
 })
-export class AppModule implements NestModule{
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggingMiddleWare).forRoutes('*');
   }
