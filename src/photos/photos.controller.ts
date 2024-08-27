@@ -11,6 +11,7 @@ import {
   Query,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -23,10 +24,17 @@ import { PhotoIdDTO } from './dtos/photo-id.dto';
 import { PhotosPaginationDTO } from './dtos/photos-paginate.dto';
 import { Photo } from './photo.entity';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { AuthGaurd } from 'src/auth/guards/auth.guard';
+import { Role } from 'src/users/roles.enum';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 @Controller('photos')
 export class PhotosController {
   constructor(private photosService: PhotosService) {}
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Get('')
   async getAllPhotos(
     @Query() queryDto: PhotosPaginationDTO,
@@ -41,6 +49,9 @@ export class PhotosController {
   queryDto);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Post('')
   @UseInterceptors(
     FilesInterceptor('photos', 10, {
@@ -62,6 +73,9 @@ export class PhotosController {
     return await this.photosService.asignPhotosToProduct(photos, body);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Post('/main')
   @UseInterceptors(
     FileInterceptor('photo', {
@@ -84,6 +98,9 @@ export class PhotosController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Delete(':id')
   async deletePhoto(@Param() paramObj: PhotoIdDTO) {
     return await this.photosService.deletePhoto(paramObj.id);

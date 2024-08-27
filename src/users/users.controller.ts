@@ -35,6 +35,9 @@ export class UsersController {
     return this.users_sevice.editUserProfile(paramObj.id,edit_user_profile_dto);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Get('')
   async getAllUser(
     @Query() queryDto:UsersPaginationDTO,

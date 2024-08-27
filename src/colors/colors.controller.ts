@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ColorsService } from './colors.service';
 import { CreateColorDTO } from './dtos/create-color.dto';
 import { Color } from './color.entity';
@@ -8,16 +8,24 @@ import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { ColorDTO } from './dtos/color.dto';
 import { ColorIdDTO } from './dtos/Color-id.dto';
 import { UpdateColorDTO } from './dtos/update-color.dto';
+import { AuthGaurd } from 'src/auth/guards/auth.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from 'src/users/roles.enum';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 @Controller('colors')
 export class ColorsController {
   constructor(private colorService: ColorsService) {}
 
   @Serialize(Color)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Post('')
   async createColor(@Body() data: CreateColorDTO): Promise<Color> {
     return await this.colorService.createColor(data);
   }
 
+  @UseGuards(AuthGaurd)
   @Get('')
   async getColorsWithPagination(
     @Query() queryDto: ColorsPaginationQueryDTO,
@@ -36,12 +44,16 @@ export class ColorsController {
   }
 
   @Serialize(ColorDTO)
+  @UseGuards(AuthGaurd)
   @Get('/:id')
   async getColorById(@Param() paramObj: ColorIdDTO): Promise<Color> {
     return await this.colorService.getColorById(paramObj.id);
   }
   
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Patch('/:id')
   async updateColor(
     @Param() paramObj: ColorIdDTO,
@@ -53,6 +65,9 @@ export class ColorsController {
   }
   
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Delete('/:id')
   async deleteCategory(@Param() paramObj: ColorIdDTO){
     return await this.colorService.deleteColor(paramObj.id);

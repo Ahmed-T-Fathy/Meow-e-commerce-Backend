@@ -18,14 +18,15 @@ export class OrdersController {
   constructor(private orderService: OrdersService) {}
 
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(RolesGuard)
-  @Roles(Role.Admin,Role.User)
   @UseGuards(AuthGaurd)
   @Post('')
   async createOrder(@Request() req,@Body() data:CreateOrderDTO) {
     return this.orderService.createOrder(req.user,data);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin,Role.User)
+  @UseGuards(AuthGaurd)
   @Get('')
   async getOrdersWithPagination(
     @Query() queryDto: OrdersPaginationDTO,
@@ -44,12 +45,16 @@ export class OrdersController {
   }
 
   @Serialize(OrderDTO)
+  @UseGuards(AuthGaurd)
   @Get('/:id')
   async getOrderById(@Param() paramObj:UUIDDTO){
     return await this.orderService.getOrderById(paramObj.id);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Patch('/:id')
   async updateOrder(
     @Param() paramObj: UUIDDTO,
@@ -61,6 +66,9 @@ export class OrdersController {
   }
   
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Delete('/:id')
   async deleteOrder(@Param() paramObj: UUIDDTO){
     return await this.orderService.deleteOrder(paramObj.id);
