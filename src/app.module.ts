@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { typeOrmConfig } from './typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersController } from './users/users.controller';
@@ -36,18 +35,21 @@ import { LoggingMiddleWare } from './middlewares/logging.middleware';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          url: config.get<string>('DATABASE_URL'),
-          ssl: {
-            rejectUnauthorized: false, // Set to true if you have a valid certificate
-          },
-          entities: ['dist/**/*.entity{.ts,.js}'],
-          logging: true,
-          synchronize: true,
-        };
-      },
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DATABASE_URL'),
+        entities: ['dist/**/*.entity{.ts,.js}'],
+        migrations: ['dist/migrations/*{.ts,.js}'],
+        logging: true,
+        synchronize: false,
+        cli: {
+          migrationsDir: 'src/migrations',
+        },
+        // Uncomment and configure if SSL is needed
+        // ssl: {
+        //   rejectUnauthorized: false, // Adjust based on your environment
+        // },
+      }),
     }),
     // TypeOrmModule.forRootAsync({
     //   inject: [ConfigService],

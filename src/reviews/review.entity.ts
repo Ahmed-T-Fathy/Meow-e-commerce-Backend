@@ -9,7 +9,7 @@ export class Review {
   rating: number;
 
   @Column({ nullable: true })
-  comment: string;
+  commen: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
