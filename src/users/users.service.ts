@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './users.entity';
 import { Repository } from 'typeorm';
@@ -10,6 +14,7 @@ import {
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { UsersPaginationDTO } from './dtos/users-pagination-query.dto';
+import { retry } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -21,25 +26,37 @@ export class UsersService {
   }
 
   async updateUser(id: string, update_user_dto: UpdateUserDTO) {
-    const user = await this.findUserById(id);
-    Object.assign(user, update_user_dto);
-    // If password is being updated, ensure it's hashed
-    if (update_user_dto.password) {
-      await user.hashPassword(update_user_dto.password);
-    }
+    try {
+      const user = await this.findUserById(id);
+      console.log(update_user_dto);
 
-    return this.usersRepo.save(user);
+      Object.assign(user, update_user_dto);
+      // If password is being updated, ensure it's hashed
+      if (update_user_dto?.password) {
+        await user.hashPassword(update_user_dto.password);
+      }
+
+      const updated_user = await this.usersRepo.save(user);
+      return updated_user;
+    } catch (err) {
+      throw new ConflictException(err);
+    }
   }
 
   async editUserProfile(id: string, edit_user_profile_dto: EditUserProfileDTO) {
-    const user = await this.findUserById(id);
-    Object.assign(user, edit_user_profile_dto);
-    // If password is being updated, ensure it's hashed
-    if (edit_user_profile_dto.password) {
-      await user.hashPassword(edit_user_profile_dto.password);
-    }
+    try {
+      const user = await this.findUserById(id);
+      Object.assign(user, edit_user_profile_dto);
+      // If password is being updated, ensure it's hashed
+      if (edit_user_profile_dto.password) {
+        await user.hashPassword(edit_user_profile_dto.password);
+      }
 
-    return this.usersRepo.save(user);
+      const updated_user = await this.usersRepo.save(user);
+      return updated_user;
+    } catch (err) {
+      throw new ConflictException(err);
+    }
   }
 
   async paginateUsers(
@@ -53,19 +70,20 @@ export class UsersService {
       });
     }
 
+    //  Get user name using matching pattern or partial string matching
     if (other?.username) {
       queryBuilder.andWhere('LOWER(u.username) ILIKE LOWER(:username)', {
-        username: other.username,
+        username: `%${other.username}%`,
       });
     }
     if (other?.email) {
       queryBuilder.andWhere('LOWER(u.email) ILIKE LOWER(:email)', {
-        email: other.email,
+        email: `%${other.email}%`,
       });
     }
     if (other?.phone) {
       queryBuilder.andWhere('LOWER(u.phone) ILIKE LOWER(:phone)', {
-        phone: other.phone,
+        phone: `%${other.phone}%`,
       });
     }
     if (other?.role) {
@@ -81,5 +99,10 @@ export class UsersService {
     }
 
     return await paginate<Users>(queryBuilder, options);
+  }
+
+  async deleteUser(id: string) {
+    const user: Users = await this.findUserById(id);
+    return this.usersRepo.remove(user);
   }
 }

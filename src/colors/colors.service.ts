@@ -1,10 +1,18 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Color } from './color.entity';
 import { Repository } from 'typeorm';
 import { CreateColorDTO } from './dtos/create-color.dto';
 import { UpdateColorDTO } from './dtos/update-color.dto';
-import { IPaginationOptions, paginate, Pagination } from 'nestjs-typeorm-paginate';
+import {
+  IPaginationOptions,
+  paginate,
+  Pagination,
+} from 'nestjs-typeorm-paginate';
 import { ColorsPaginationQueryDTO } from './dtos/color-pagination-query.dto';
 
 @Injectable()
@@ -41,7 +49,9 @@ export class ColorsService {
     }
 
     if (other?.color) {
-      queryBuilder.andWhere('c.color LIKE :color', { color: `%${other.color}%` });
+      queryBuilder.andWhere('c.color LIKE :color', {
+        color: `%${other.color}%`,
+      });
     }
 
     if (other?.code) {
@@ -52,7 +62,6 @@ export class ColorsService {
     return await paginate<Color>(queryBuilder, options);
   }
 
-
   async updateColor(id: string, updateDto: UpdateColorDTO) {
     try {
       const color = await this.getColorById(id);
@@ -61,5 +70,4 @@ export class ColorsService {
       throw new InternalServerErrorException(err);
     }
   }
-
 }

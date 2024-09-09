@@ -1,4 +1,15 @@
-import { Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGaurd } from 'src/auth/guards/auth.guard';
 import { UUIDDTO } from 'src/dto/UUID-dto';
@@ -19,8 +30,11 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @UseGuards(AuthGaurd)
-  @Patch('/:id')
-  updateUser(@Param() paramObj: UUIDDTO, update_user_dto: UpdateUserDTO) {
+  @Patch('edit/:id')
+  updateUser(
+    @Param() paramObj: UUIDDTO,
+    @Body() update_user_dto: UpdateUserDTO,
+  ) {
     return this.users_sevice.updateUser(paramObj.id, update_user_dto);
   }
 
@@ -30,9 +44,12 @@ export class UsersController {
   @Patch('profile/:id')
   editUserProfile(
     @Param() paramObj: UUIDDTO,
-    edit_user_profile_dto: EditUserProfileDTO,
+    @Body() edit_user_profile_dto: EditUserProfileDTO,
   ) {
-    return this.users_sevice.editUserProfile(paramObj.id,edit_user_profile_dto);
+    return this.users_sevice.editUserProfile(
+      paramObj.id,
+      edit_user_profile_dto,
+    );
   }
 
   @UseGuards(RolesGuard)
@@ -40,15 +57,35 @@ export class UsersController {
   @UseGuards(AuthGaurd)
   @Get('')
   async getAllUser(
-    @Query() queryDto:UsersPaginationDTO,
-  ):Promise<Pagination<Users>>{
+    @Query() queryDto: UsersPaginationDTO,
+  ): Promise<Pagination<Users>> {
     const page = queryDto.page;
     const limit = queryDto.limit;
-    return await this.users_sevice.paginateUsers({
-      page,
-      limit,
-      route: 'users/',
-    },
-  queryDto);
+    return await this.users_sevice.paginateUsers(
+      {
+        page,
+        limit,
+        route: 'users/',
+      },
+      queryDto,
+    );
   }
+
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
+  @Get('/:id')
+  async getUser(@Param() paramObj: UUIDDTO): Promise<Users> {
+    return await this.users_sevice.findUserById(paramObj.id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
+  @Delete('/:id')
+  async deleteUser(@Param() paramObj:UUIDDTO){
+    return await this.users_sevice.deleteUser(paramObj.id);
+  }
+
 }
