@@ -28,6 +28,7 @@ import { AuthGaurd } from 'src/auth/guards/auth.guard';
 import { Role } from 'src/users/roles.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { existsSync, mkdir, mkdirSync } from 'fs';
 @Controller('photos')
 export class PhotosController {
   constructor(private photosService: PhotosService) {}
@@ -56,7 +57,14 @@ export class PhotosController {
   @UseInterceptors(
     FilesInterceptor('photos', 10, {
       storage: diskStorage({
-        destination: './uploads/media',
+        destination: (req,file,callback)=>{
+          const uploadPath='./uploads/media';
+
+          if(!existsSync(uploadPath)){
+            mkdirSync(uploadPath,{recursive:true});
+          }
+          callback(null,uploadPath);
+        },
         filename: (req, file, callback) => {
           const filename = `${uuidv4()}${extname(file.originalname)}`;
           callback(null, filename);
@@ -80,7 +88,14 @@ export class PhotosController {
   @UseInterceptors(
     FileInterceptor('photo', {
       storage: diskStorage({
-        destination: './uploads/media',
+        destination:  (req,file,callback)=>{
+          const uploadPath='./uploads/media';
+
+          if(!existsSync(uploadPath)){
+            mkdirSync(uploadPath,{recursive:true});
+          }
+          callback(null,uploadPath);
+        },
         filename: (req, file, callback) => {
           const filename = `${uuidv4()}${extname(file.originalname)}`;
           callback(null, filename);
