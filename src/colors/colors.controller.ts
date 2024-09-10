@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 export class ColorsController {
   constructor(private colorService: ColorsService) {}
 
-  @Serialize(Color)
+  @Serialize(ColorDTO)
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @UseGuards(AuthGaurd)
