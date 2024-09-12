@@ -15,9 +15,15 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
-    origin: true,  // Specify allowed origins
+    origin: '*',  // Specify allowed origins
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
+  });
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');  // Replace '*' with the allowed origin if necessary
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
   });
   app.use(helmet());
   await app.listen(3000);
