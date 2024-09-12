@@ -5,7 +5,7 @@ export class AssignPhotosDTO {
   @IsUUID()
   productId: string;
 
-  @IsString()
-  @IsUUID()
-  colorId: string;
+  // @IsString()
+  // @IsUUID()
+  // colorId: string;
 }

@@ -1,4 +1,4 @@
-import { Color } from 'src/colors/color.entity';
+// import { Color } from 'src/colors/color.entity';
 import { Product } from 'src/products/product.entity';
 import {
   Entity,
@@ -32,8 +32,8 @@ export class Photo {
   @ManyToOne(() => Product, (product) => product.photos, { onDelete: 'SET NULL' })
   product: Product;
 
-  @ManyToOne(() => Color, (color) => color.photos, { onDelete: 'SET NULL' })
-  color: Color;
+  // @ManyToOne(() => Color, (color) => color.photos, { onDelete: 'SET NULL' })
+  // color: Color;
 
   @BeforeInsert()
   beforeInsert() {

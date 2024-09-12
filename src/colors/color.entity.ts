@@ -28,11 +28,11 @@ export class Color {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @OneToMany(() => Color, (color) => color.photos)
-  photos: Photo[];
+  // @OneToMany(() => Color, (color) => color.photos)
+  // photos: Photo[];
 
-  @OneToMany(() => Color, (color) => color.product_variant)
-  product_variant:ProductVariant[];
+  // @OneToMany(() => Color, (color) => color.product_variant)
+  // product_variant:ProductVariant[];
 
   @BeforeInsert()
   beforeInsert() {

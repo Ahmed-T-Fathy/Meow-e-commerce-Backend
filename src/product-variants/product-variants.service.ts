@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ProductVariant } from './product-variant.entity';
 import { DeepPartial, In, Repository } from 'typeorm';
 import { Product } from 'src/products/product.entity';
-import { Color } from 'src/colors/color.entity';
+// import { Color } from 'src/colors/color.entity';
 import { CreateProductVariantDTO } from './dtos/create-product-variant.dto';
 import {
   IPaginationOptions,
@@ -19,7 +19,7 @@ export class ProductVariantsService {
     @InjectRepository(ProductVariant)
     private productVariantRepo: Repository<ProductVariant>,
     @InjectRepository(Product) private productRepo: Repository<Product>,
-    @InjectRepository(Color) private colorRepo: Repository<Color>,
+    // @InjectRepository(Color) private colorRepo: Repository<Color>,
   ) {}
 
   async createProductVariant(
@@ -31,15 +31,15 @@ export class ProductVariantsService {
   });
   if (!product) throw new NotFoundException('Product not found!');
 
-  // Find the color by ID
-  const color = await this.colorRepo.findOne({ where: { id: data.color } });
-  if (!color) throw new NotFoundException('Color not found!');
+  // // Find the color by ID
+  // const color = await this.colorRepo.findOne({ where: { id: data.color } });
+  // if (!color) throw new NotFoundException('Color not found!');
 
   // Check if a variant with the same size and color already exists for the product
   const existingVariant = await this.productVariantRepo.findOne({
     where: {
       product: { id: data.product },
-      color: { id: data.color },
+      // color: { id: data.color },
       size: data.size,
     },
   });
@@ -49,7 +49,7 @@ export class ProductVariantsService {
 
   // If no duplicate found, create the variant
   let variant = data as DeepPartial<ProductVariant>;
-  variant.color = color;
+  // variant.color = color;
   variant.product = product;
   
   return await this.productVariantRepo.save(variant);
@@ -66,11 +66,11 @@ export class ProductVariantsService {
       });
     }
 
-    if (other?.color) {
-      const color = await this.colorRepo.findOneBy({ id: other.color });
-      if (!color) throw new NotFoundException('Color not found!');
-      queryBuilder.andWhere('v.color_id = :color', { color: other.color });
-    }
+    // if (other?.color) {
+    //   const color = await this.colorRepo.findOneBy({ id: other.color });
+    //   if (!color) throw new NotFoundException('Color not found!');
+    //   queryBuilder.andWhere('v.color_id = :color', { color: other.color });
+    // }
     if (other?.product) {
       const product = await this.productRepo.findOneBy({ id: other.product });
       if (!product) throw new NotFoundException('Product not found!');
@@ -96,8 +96,12 @@ export class ProductVariantsService {
   async getVariantById(id: string): Promise<ProductVariant> {
     const variant = await this.productVariantRepo.findOne({
       where: { id },
-      relations: ['color', 'product'],
+      relations: [ 'product'],
     });
+    // const variant = await this.productVariantRepo.findOne({
+    //   where: { id },
+    //   relations: ['color', 'product'],
+    // });
     if (!variant) {
       throw new NotFoundException('Product variant not found!');
     }
@@ -108,13 +112,13 @@ export class ProductVariantsService {
     const variant = await this.getVariantById(id);
     let obj: DeepPartial<ProductVariant> =
       updateDto as DeepPartial<ProductVariant>;
-    if (updateDto.color) {
-      const color = await this.colorRepo.findOne({
-        where: { id: updateDto.color },
-      });
-      if (!color) throw new NotFoundException('Color Not found!');
-      obj.color;
-    }
+    // if (updateDto.color) {
+    //   const color = await this.colorRepo.findOne({
+    //     where: { id: updateDto.color },
+    //   });
+    //   if (!color) throw new NotFoundException('Color Not found!');
+    //   obj.color;
+    // }
 
     if (updateDto.product) {
       const product = await this.productRepo.findOne({

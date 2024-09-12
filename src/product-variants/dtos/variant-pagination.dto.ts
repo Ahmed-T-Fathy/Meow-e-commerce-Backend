@@ -28,9 +28,9 @@ export class VariantsPaginationDTO {
   @Transform(transformerOrderBy)
   orderBy?: [{ field: string; direction: 'ASC' | 'DESC' }];
 
-  @IsOptional()
-  @IsUUID()
-  color?: string;
+  // @IsOptional()
+  // @IsUUID()
+  // color?: string;
 
   @IsOptional()
   @IsUUID()

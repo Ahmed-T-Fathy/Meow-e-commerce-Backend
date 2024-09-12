@@ -5,9 +5,9 @@ export class CreateProductVariantDTO {
   @IsString()
   size: string;
 
-  @IsString()
-  @IsUUID()
-  color: string;
+  // @IsString()
+  // @IsUUID()
+  // color: string;
 
   @IsNumber()
   stock: number;

@@ -13,6 +13,7 @@ export class AuthController {
     return await this.authService.signup(data);
   }
 
+  @HttpCode(HttpStatus.ACCEPTED)
   @Post('login')
   async login(@Body() data:LoginDataDTO){    
     return await this.authService.login(data);
