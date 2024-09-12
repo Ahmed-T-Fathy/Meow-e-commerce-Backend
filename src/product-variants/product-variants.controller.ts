@@ -29,6 +29,17 @@ export class ProductVariantsController {
     return await this.productVariantsService.createProductVariant(data);
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
+  @Post('/many')
+  async createProductVariants(
+    @Body() data: CreateProductVariantDTO[],
+  ): Promise<ProductVariant[]> {
+    return await this.productVariantsService.createProductVariants(data);
+  }
+
+
   @UseGuards(AuthGaurd)
   @Get('')
   async getVariantsWithPagination(

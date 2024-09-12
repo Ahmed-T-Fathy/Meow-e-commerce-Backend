@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductVariant } from './product-variant.entity';
 import { DeepPartial, In, Repository } from 'typeorm';
@@ -44,7 +44,7 @@ export class ProductVariantsService {
     },
   });
   if (existingVariant) {
-    throw new ConflictException('Product variant with this size and color already exists!');
+    throw new ConflictException('Product variant with this size already exists!');
   }
 
   // If no duplicate found, create the variant
@@ -54,6 +54,68 @@ export class ProductVariantsService {
   
   return await this.productVariantRepo.save(variant);
   }
+
+
+  async createProductVariants(
+    data: CreateProductVariantDTO[],
+  ): Promise<ProductVariant[]> {
+    if (data.length === 0) {
+      throw new BadRequestException('No data provided!');
+    }
+    if (!Array.isArray(data)) {
+      throw new BadRequestException('Data must be an array!');
+    }
+  console.log(data);
+  
+    // Ensure all variants have the same product ID
+    const productId = data[0].product;
+    for (const item of data) {
+      if (item.product !== productId) {
+        throw new BadRequestException('All variants must have the same product ID!');
+      }
+    }
+  
+    // Fetch the product to ensure it exists
+    const product = await this.productRepo.findOne({
+      where: { id: productId },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${productId} not found!`);
+    }
+  
+    // Fetch existing variants that match the product ID and sizes
+    const sizes = data.map(item => item.size);
+    const existingVariants = await this.productVariantRepo.find({
+      where: {
+        product: { id: productId },
+        size: In(sizes),
+      },
+    });
+  
+    // Create a set of existing variant sizes to check against
+    const existingSizes = new Set(existingVariants.map(v => v.size));
+  
+    // Check if any of the provided sizes already exist
+    const duplicateSizes = sizes.filter(size => existingSizes.has(size));
+    if (duplicateSizes.length > 0) {
+      throw new ConflictException(`Variants with sizes ${duplicateSizes.join(', ')} already exist for product ID ${productId}!`);
+    }
+  
+    // Create valid variants and perform bulk insert
+    const validVariants: DeepPartial<ProductVariant>[] = data.map(item => ({
+      product: product,
+      size: item.size,
+      stock:item.stock
+      // Add other properties from item as needed
+    }));
+  console.log(validVariants);
+  
+    const savedVariants = await this.productVariantRepo.save(validVariants);
+  
+    return savedVariants;
+  }
+  
+
 
   async paginateVariant(
     options: IPaginationOptions,
