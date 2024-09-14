@@ -31,19 +31,11 @@ export class OrdersService {
   ) {}
 
   // https://chatgpt.com/c/a78c554c-b073-4752-8596-7612c6ac8aac
-  async createOrder(user: Users,data:CreateOrderDTO) {
+  async createOrder(user: Users, data: CreateOrderDTO) {
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      //create new order instance
-      const order = new Order();
-      order.user = user;
-      order.status = Orders_Status.outstanding;
-      order.total_price=0;
-      order.address=data.address;
-      const savedOrder = await queryRunner.manager.save(order);
-
       //get user's basket with eager load his items
       const basket = await this.basketRepo.findOne({
         where: { user: { id: user.id } },
@@ -59,34 +51,65 @@ export class OrdersService {
       if (basket.basket_items.length === 0)
         throw new NotFoundException('There is no items in the basket!');
 
+      // Get total price
+      let total_price = await basket.basket_items.reduce(
+        async (accumulatorPromise, basket_item) => {
+          let accumulator = await accumulatorPromise;
 
-      await Promise.all(basket.basket_items.map( async item=>{
+          let price =
+            basket_item.product_variant.product.after_discount_price &&
+            basket_item.product_variant.product.after_discount_price != 0
+              ? basket_item.product_variant.product.after_discount_price
+              : basket_item.product_variant.product.price;
 
-        // create order items form the product item
-        const order_item=new OrderItem();
-        order_item.quantity=item.quantity;
-        order_item.price=item.product_variant.product.after_discount_price?item.product_variant.product.after_discount_price:item.product_variant.product.price;
-        order_item.product_variant=item.product_variant;
-        order_item.order=savedOrder;
+          price = await Promise.resolve(price);
 
-        await queryRunner.manager.save(order_item);
-        const product_variant=item.product_variant;
+          return accumulator + price * basket_item.quantity;
+        },
+        Promise.resolve(0),
+      );
 
-        if(product_variant.stock<item.quantity)
-          throw new ConflictException(`This in valid quantity while the product variant: ${product_variant}`);
+      //create new order instance
+      const order = new Order();
+      order.user = user;
+      order.status = Orders_Status.outstanding;
+      order.total_price = total_price;
+      order.address = data.address;
+      const savedOrder = await queryRunner.manager.save(order);
 
-        product_variant.stock -= item.quantity;
+      await Promise.all(
+        basket.basket_items.map(async (item) => {
+          // create order items form the product item
+          const order_item = new OrderItem();
+          order_item.quantity = item.quantity;
+          order_item.price =
+            item.product_variant.product.after_discount_price &&
+            item.product_variant.product.after_discount_price != 0
+              ? item.product_variant.product.after_discount_price
+              : item.product_variant.product.price;
+          order_item.product_variant = item.product_variant;
+          order_item.order = savedOrder;
 
-        await queryRunner.manager.save(product_variant);
+          await queryRunner.manager.save(order_item);
+          const product_variant = item.product_variant;
 
-        return order_item;
-      }))
-      
-      await queryRunner.manager.delete(BasketItem,{basket});
-      
+          if (product_variant.stock < item.quantity)
+            throw new ConflictException(
+              `This in valid quantity while the product variant: ${product_variant}`,
+            );
+
+          product_variant.stock -= item.quantity;
+
+          await queryRunner.manager.save(product_variant);
+
+          return order_item;
+        }),
+      );
+
+      await queryRunner.manager.delete(BasketItem, { basket });
+
       // Commit transaction
       await queryRunner.commitTransaction();
-
 
       return savedOrder;
     } catch (err) {
@@ -145,7 +168,7 @@ export class OrdersService {
   async getOrderById(id: string): Promise<Order> {
     const order = await this.orderRepo.findOne({
       where: { id },
-      relations: ['user'],
+      relations: ['user', 'order_items'],
     });
     if (!order) {
       throw new NotFoundException('Order variant not found!');

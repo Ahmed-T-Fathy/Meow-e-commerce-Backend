@@ -76,7 +76,7 @@ export class BasketItemsService {
       relations: [
         'basket',
         'product_variant',
-        'product_variant.color',
+        // 'product_variant.color',
         'product_variant.product',
       ],
     });

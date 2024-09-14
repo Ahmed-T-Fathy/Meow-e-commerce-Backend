@@ -12,6 +12,9 @@ export class Product {
   name: string;
 
   @Column({ nullable: true })
+  short_description: string;
+  
+  @Column({ nullable: true })
   description: string;
 
   @Column('decimal')

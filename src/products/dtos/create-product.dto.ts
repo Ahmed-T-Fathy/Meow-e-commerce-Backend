@@ -8,8 +8,12 @@ export class CreateProductDTO {
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   description: string;
+
+  @IsString()
+  @IsOptional()
+  short_description: string;
 
   @IsDecimal()
   @IsNotEmpty()

@@ -10,8 +10,11 @@ export class ProductDTO {
   name: string;
 
   @Expose()
+  short_description:string;
+  
+  @Expose()
   description: string;
-
+  
   @Expose()
   price: number;
 

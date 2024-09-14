@@ -26,7 +26,7 @@ export class Order {
   @Column({nullable:true})
   address:string;
 
-  @OneToMany(() => Order, (order) => order.order_items)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   order_items: OrderItem[];
 
   @ManyToOne(() => Users, (users) => users.orders, { onDelete: 'CASCADE' })
