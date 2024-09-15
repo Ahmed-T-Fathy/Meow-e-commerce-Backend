@@ -41,9 +41,9 @@ import { OtpModule } from './otp/otp.module';
         return {
           type: 'postgres',
           url: config.get<string>('DATABASE_URL'),
-          // ssl: {
-          //   rejectUnauthorized: false, // Set to true if you have a valid certificate
-          // },
+          ssl: {
+            rejectUnauthorized: false, // Set to true if you have a valid certificate
+          },
           entities: ['dist/**/*.entity{.ts,.js}'],
           logging: true,
           synchronize: true,
