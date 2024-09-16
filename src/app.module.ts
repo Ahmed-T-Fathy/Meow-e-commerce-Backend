@@ -28,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { LoggingMiddleWare } from './middlewares/logging.middleware';
 import { OtpModule } from './otp/otp.module';
+import { TaxsModule } from './taxs/taxs.module';
 
 @Module({
   imports: [
@@ -41,9 +42,9 @@ import { OtpModule } from './otp/otp.module';
         return {
           type: 'postgres',
           url: config.get<string>('DATABASE_URL'),
-          // ssl: {
-          //   rejectUnauthorized: false, // Set to true if you have a valid certificate
-          // },
+          ssl: {
+            rejectUnauthorized: false, // Set to true if you have a valid certificate
+          },
           entities: ['dist/**/*.entity{.ts,.js}'],
           logging: true,
           synchronize: true,
@@ -83,6 +84,7 @@ import { OtpModule } from './otp/otp.module';
     ColorsModule,
     AuthModule,
     OtpModule,
+    TaxsModule,
     // MulterModule.register(),
   ],
   controllers: [AppController],
