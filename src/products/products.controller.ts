@@ -27,7 +27,7 @@ export class ProductsController {
     return this.productService.createProduct(data);
   }
 
-  @UseGuards(AuthGaurd)
+  // @UseGuards(AuthGaurd)
   @Get('')
   async getProductsWithPagination(
     @Query() queryDto:ProductsPaginationQueryDTO,

@@ -28,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { LoggingMiddleWare } from './middlewares/logging.middleware';
 import { OtpModule } from './otp/otp.module';
+import { TaxsModule } from './taxs/taxs.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { OtpModule } from './otp/otp.module';
     ColorsModule,
     AuthModule,
     OtpModule,
+    TaxsModule,
     // MulterModule.register(),
   ],
   controllers: [AppController],
