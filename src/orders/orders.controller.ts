@@ -74,4 +74,10 @@ export class OrdersController {
     return await this.orderService.deleteOrder(paramObj.id);
   }
 
+  @Serialize(OrderDTO)
+  @UseGuards(AuthGaurd)
+  @Get('invoice/check')
+  async getInvoice(@Request() req,@Body() data:CreateOrderDTO){
+    return await this.orderService.getinvoice(req.user,data);
+  }
 }

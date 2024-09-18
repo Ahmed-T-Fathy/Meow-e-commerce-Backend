@@ -6,10 +6,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from 'src/users/users.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { Basket } from 'src/basket/basket.entity';
+import { CouponsModule } from 'src/coupons/coupons.module';
+import { TaxsModule } from 'src/taxs/taxs.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Users,Basket])
-  , AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Order, Users, Basket]),
+    AuthModule,
+    CouponsModule,
+    TaxsModule,
+  ],
   controllers: [OrdersController],
   providers: [OrdersService],
 })

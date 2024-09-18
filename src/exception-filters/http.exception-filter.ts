@@ -12,6 +12,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR; 
     let errorMessage = 'Internal server error'; 
+    let errorDetails: string | null = null;
 
     if (exception.code === 'ENOENT') {
       status = HttpStatus.NOT_FOUND; 
@@ -19,11 +20,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       errorMessage = exception.message || 'An error occurred';
+
+      // Safely access getResponse() only if exception is an HttpException
+      const exceptionResponse = exception.getResponse();
+      if (typeof exceptionResponse === 'object' && 'message' in exceptionResponse) {
+        errorDetails = (exceptionResponse as any).message;
+      }
+    } else {
+      // For non-HttpException errors (like native JS errors)
+      errorMessage = exception.message || errorMessage;
     }
 
     this.logger.error(`${request.method} ${request.originalUrl} ${status} error: ${errorMessage}`);
-    const errorDetails=exception.getResponse().message;
-    // console.log(exception.getResponse());
     
     response.status(status).json({
       statusCode: status,

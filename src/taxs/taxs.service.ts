@@ -3,7 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Tax } from './tax.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTaxDTO } from './dtos/create-tax.dto';
@@ -57,12 +57,19 @@ export class TaxsService {
           neededTaxs = neededTaxs.filter((ts) => ts != t.title);
         }
       });
-      await Promise.all(neededTaxs.map(async t=>{
-        await this.createTax({title:t,value:0});
-      }))
+      await Promise.all(
+        neededTaxs.map(async (t) => {
+          await this.createTax({ title: t, value: 0 });
+        }),
+      );
       return await this.taxRepo.find();
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
+  }
+  async getTaxByTitle(title: string) {
+    let tax = await this.taxRepo.findOne({ where: { title } });
+    if (!tax) throw new NotFoundException('Tax not found!');
+    return tax;
   }
 }

@@ -23,8 +23,35 @@ export class Order {
   @Column('decimal')
   total_price: number;
 
-  @Column({nullable:true})
+  @Column('decimal',{name:"before_discount"})
+  beforeDiscount: number;
+
+  @Column('decimal')
+  discount: number;
+
+  @Column('decimal')
+  tax: number;
+
+  @Column('decimal',{ name: 'delivery_service' })
+  deliveryService: number;
+
+  @Column({nullable:false})
   address:string;
+
+  @Column({nullable:false,name:"postal_code"})
+  postalCode:string;
+
+  @Column({nullable:false})
+  city:string;
+
+  @Column({nullable:false})
+  zone:string;
+
+  @Column({nullable:false})
+  location:string;
+
+  @Column({nullable:false,name:"phone_number"})
+  phoneNumber:string;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   order_items: OrderItem[];

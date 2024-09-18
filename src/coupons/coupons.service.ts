@@ -69,12 +69,12 @@ export class CouponsService {
       if (other?.name) {
         queryBuilder.andWhere('c.name LIKE :name', { name: `%${other.name}%` });
       }
-    //   if (other?.expiryDate) {
-    //     queryBuilder.andWhere('c.expiry_date LIKE :expiryDate', { expiryDate: `%${other.expiryDate}%` });
+      //   if (other?.expiryDate) {
+      //     queryBuilder.andWhere('c.expiry_date LIKE :expiryDate', { expiryDate: `%${other.expiryDate}%` });
 
-    //   }
+      //   }
       if (other?.type) {
-        queryBuilder.andWhere('c.type = :type',{type:`${other.type}`});
+        queryBuilder.andWhere('c.type = :type', { type: `${other.type}` });
       }
 
       return await paginate<Coupon>(queryBuilder, options);
@@ -82,4 +82,13 @@ export class CouponsService {
       throw new InternalServerErrorException(err);
     }
   }
+
+  async getCouponByName(name: string) {
+    let coupon = await this.couponRepo.findOne({
+      where: { name },
+    });
+    if (!coupon) throw new NotFoundException('coupon not found!');
+    return coupon;
+  }
+
 }
