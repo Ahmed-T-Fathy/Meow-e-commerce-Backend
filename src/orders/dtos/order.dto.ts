@@ -6,6 +6,9 @@ import { UserDTO } from "src/users/dtos/user.dto";
 export class OrderDTO{
     @Expose()
     id:string;
+    
+    @Expose()
+    orderNo:string;
 
     @Expose()
     status:string;

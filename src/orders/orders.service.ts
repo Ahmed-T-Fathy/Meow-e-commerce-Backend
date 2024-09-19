@@ -70,9 +70,15 @@ export class OrdersService {
         },
         Promise.resolve(0),
       );
-
+      // get tax
+      const tax = await this.taxsService.getTaxByTitle('TAX');
+      const deliveryService =
+        await this.taxsService.getTaxByTitle('Delivery service');
+      total_price =
+        Number(total_price) + Number(tax.value) + Number(deliveryService.value);
+      
       let coupon: Coupon;
-      let before_discount: number = total_price;
+      let before_discount: number = parseFloat(total_price.toFixed(2));
       if (data.coupon) {
         coupon = await this.couponsService.getCouponByName(data.coupon);
       }
@@ -82,27 +88,32 @@ export class OrdersService {
       coupon.usageNo = coupon.usageNo + 1;
       await queryRunner.manager.save(coupon);
 
-      // get tax
-      const tax = await this.taxsService.getTaxByTitle('TAX');
-      const deliveryService =
-        await this.taxsService.getTaxByTitle('Delivery service');
-      total_price =
-        Number(total_price) + Number(tax.value) + Number(deliveryService.value);
 
       //create new order instance
       let order = new Order();
       Object.assign(order, data);
+
+      //get order number
+      let lastestOrder = await this.orderRepo.find({
+        order: { orderNo: 'DESC' },
+      });
+      
+      if (lastestOrder.length > 0 && lastestOrder[0]?.orderNo) {
+        order.orderNo = lastestOrder[0].orderNo + 1;
+      } else {
+        order.orderNo = 10000;  
+      }
+      
+
       order.user = user;
       order.status = Orders_Status.outstanding;
       order.total_price = total_price;
       order.beforeDiscount = before_discount;
-      order.discount = parseFloat((before_discount - total_price).toFixed(2));
+      order.discount = parseFloat((before_discount -total_price).toFixed(2));
       order.tax = tax.value;
       order.deliveryService = deliveryService.value;
 
       const savedOrder = await queryRunner.manager.save(order);
-      // console.log(savedOrder);
-
       // throw new InternalServerErrorException("err");
 
       await Promise.all(
@@ -251,11 +262,13 @@ export class OrdersService {
       order.status = Orders_Status.outstanding;
       order.total_price = total_price;
       order.beforeDiscount = before_discount;
-      order.discount = Math.abs(parseFloat((before_discount - total_price).toFixed(2)));
+      order.discount = Math.abs(
+        parseFloat((before_discount - total_price).toFixed(2)),
+      );
       order.tax = tax.value;
       order.deliveryService = deliveryService.value;
 
-      let orderItems=await Promise.all(
+      let orderItems = await Promise.all(
         basket.basket_items.map(async (item) => {
           // create order items form the product item
           const order_item = new OrderItem();
@@ -278,9 +291,9 @@ export class OrdersService {
           return order_item;
         }),
       );
-      order.order_items=orderItems;
+      order.order_items = orderItems;
       console.log(order);
-      
+
       return order;
     } catch (err) {
       await queryRunner.rollbackTransaction();
