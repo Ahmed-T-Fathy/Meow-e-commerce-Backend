@@ -42,7 +42,7 @@ export class ProductsController {
   }
 
   @Serialize(ProductDTO)
-  @UseGuards(AuthGaurd)
+  // @UseGuards(AuthGaurd)
   @Get('/:id')
   async getProduct(@Param() paramObj: ProductIdDTO){
     return await this.productService.getProductById(paramObj.id);
