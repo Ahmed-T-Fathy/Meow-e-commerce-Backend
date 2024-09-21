@@ -32,7 +32,8 @@ export class AuthGaurd implements CanActivate {
       // console.log(token);
       // console.log(payload);
       // console.log(this.config.get<string>('jwt_secret'));
-      const user = await this.userService.findUserById(payload.userId);
+      const user = await this.userService.findUserById(payload.id);
+      
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
       request['user'] = user;

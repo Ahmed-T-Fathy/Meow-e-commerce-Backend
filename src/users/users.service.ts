@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -20,7 +21,11 @@ import { retry } from 'rxjs';
 export class UsersService {
   constructor(@InjectRepository(Users) private usersRepo: Repository<Users>) {}
   async findUserById(id: string): Promise<Users> {
-    const user = await this.usersRepo.findOne({ where: { id } });
+    if (!id) {
+      throw new BadRequestException('id is required!');
+    }
+    const user = await this.usersRepo.findOneOrFail({ where: { id } });
+
     if (!user) throw new NotFoundException('User not found!');
     return user;
   }
@@ -28,7 +33,6 @@ export class UsersService {
   async updateUser(id: string, update_user_dto: UpdateUserDTO) {
     try {
       const user = await this.findUserById(id);
-      console.log(update_user_dto);
 
       Object.assign(user, update_user_dto);
       // If password is being updated, ensure it's hashed
