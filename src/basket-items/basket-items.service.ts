@@ -94,7 +94,9 @@ export class BasketItemsService {
     options: IPaginationOptions,
     other: BasketItemsPaginationQueryDTO,
   ): Promise<Pagination<BasketItem>> {
-    const queryBuilder = this.basketItemRepo.createQueryBuilder('b');
+    const queryBuilder = this.basketItemRepo.createQueryBuilder('b')
+    .leftJoinAndSelect('b.product_variant', 'pv')
+    .leftJoinAndSelect('pv.product','p');
     if (other?.orderBy) {
       other.orderBy.forEach((orderBy) => {
         queryBuilder.addOrderBy(`b.${orderBy.field}`, orderBy.direction);
