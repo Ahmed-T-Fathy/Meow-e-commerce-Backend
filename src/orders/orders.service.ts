@@ -23,6 +23,7 @@ import { BasketItem } from 'src/basket-items/basket-item.entity';
 import { Coupon } from 'src/coupons/coupon.entity';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { TaxsService } from 'src/taxs/taxs.service';
+import { CheckInvoiceDTO } from './dtos/check-invoice.dto';
 
 @Injectable()
 export class OrdersService {
@@ -76,7 +77,7 @@ export class OrdersService {
         await this.taxsService.getTaxByTitle('Delivery service');
       total_price =
         Number(total_price) + Number(tax.value) + Number(deliveryService.value);
-      
+
       let coupon: Coupon;
       let before_discount: number = parseFloat(total_price.toFixed(2));
       if (data.coupon) {
@@ -88,7 +89,6 @@ export class OrdersService {
       coupon.usageNo = coupon.usageNo + 1;
       await queryRunner.manager.save(coupon);
 
-
       //create new order instance
       let order = new Order();
       Object.assign(order, data);
@@ -97,19 +97,18 @@ export class OrdersService {
       let lastestOrder = await this.orderRepo.find({
         order: { orderNo: 'DESC' },
       });
-      
+
       if (lastestOrder.length > 0 && lastestOrder[0]?.orderNo) {
         order.orderNo = lastestOrder[0].orderNo + 1;
       } else {
-        order.orderNo = 10000;  
+        order.orderNo = 10000;
       }
-      
 
       order.user = user;
       order.status = Orders_Status.outstanding;
       order.total_price = total_price;
       order.beforeDiscount = before_discount;
-      order.discount = parseFloat((before_discount -total_price).toFixed(2));
+      order.discount = parseFloat((before_discount - total_price).toFixed(2));
       order.tax = tax.value;
       order.deliveryService = deliveryService.value;
 
@@ -201,7 +200,7 @@ export class OrdersService {
     return await this.orderRepo.update({ id }, obj);
   }
 
-  async getinvoice(user: Users, data: CreateOrderDTO) {
+  async getinvoice(user: Users, data?: CheckInvoiceDTO) {
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -238,22 +237,24 @@ export class OrdersService {
         Promise.resolve(0),
       );
 
-      let coupon: Coupon;
-      let before_discount: number = total_price;
-      if (data.coupon) {
-        coupon = await this.couponsService.getCouponByName(data.coupon);
-      }
-      if (coupon)
-        total_price = parseFloat(coupon.getDiscount(total_price).toFixed(2));
-
-      coupon.usageNo = coupon.usageNo + 1;
-
       // get tax
       const tax = await this.taxsService.getTaxByTitle('TAX');
       const deliveryService =
         await this.taxsService.getTaxByTitle('Delivery service');
       total_price =
         Number(total_price) + Number(tax.value) + Number(deliveryService.value);
+
+      total_price = parseFloat(total_price.toFixed(2));
+      let coupon: Coupon;
+      let before_discount: number = total_price;
+      if (data.coupon) {
+        coupon = await this.couponsService.getCouponByName(data.coupon);
+      }
+
+      if (coupon) {
+        total_price = parseFloat(coupon.getDiscount(total_price).toFixed(2));
+        coupon.usageNo = coupon.usageNo + 1;
+      }
 
       //create new order instance
       let order = new Order();
@@ -292,7 +293,7 @@ export class OrdersService {
         }),
       );
       order.order_items = orderItems;
-      console.log(order);
+      // console.log(order);
 
       return order;
     } catch (err) {

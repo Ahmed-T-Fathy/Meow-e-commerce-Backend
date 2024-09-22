@@ -12,6 +12,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/users/roles.enum';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { CreateOrderDTO } from './dtos/create-order.dto';
+import { CheckInvoiceDTO } from './dtos/check-invoice.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -77,7 +78,7 @@ export class OrdersController {
   @Serialize(OrderDTO)
   @UseGuards(AuthGaurd)
   @Get('invoice/check')
-  async getInvoice(@Request() req,@Body() data:CreateOrderDTO){
+  async getInvoice(@Request() req,@Query() data:CheckInvoiceDTO){
     return await this.orderService.getinvoice(req.user,data);
   }
 }
