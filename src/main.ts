@@ -35,3 +35,18 @@ async function bootstrap() {
   await app.listen(port);
 }
 bootstrap();
+
+
+/**
+ * Postgres user
+ * name: postgres
+ * pass: postgresadmin
+ * 
+ * Test Db
+ * name: meow_test
+ * 
+ * Meow User
+ * name: meow
+ * pass: meowadmin1431@
+ * 
+ */
