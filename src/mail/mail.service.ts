@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import Mailgun, { MailgunMessageData } from 'mailgun.js';
 import FormData from 'form-data';
 import { MailerService } from '@nestjs-modules/mailer';
+import ejs from "ejs";
 
 //M@e@o@w@1431@
 @Injectable()
@@ -44,12 +45,18 @@ export class MailService {
       username: 'api',
       key: this.configService.get<string>('MAILGUN_API_KEY'),
     });
+    
+    let people =['geddy','neil','alex'];
+    let html=ejs.render('<%=people.join(", ");%>',{people});
+    
     const messageData = {
       from: 'meowteamservices@gmail.com',
       to: 'ahmed.tarek1244@gmail.com',
       subject: 'test',
       text: 'Hello form meow mail service',
+      html
     };
+
     try {
       const email = await client.messages.create(
         this.configService.get<string>('MAILGUN_DOMAIN'),
