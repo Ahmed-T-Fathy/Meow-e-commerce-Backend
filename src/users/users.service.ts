@@ -109,4 +109,16 @@ export class UsersService {
     const user: Users = await this.findUserById(id);
     return this.usersRepo.remove(user);
   }
+
+  async getUserByPhoneNumber(phoneNumber:string): Promise<Users> {
+    if(!phoneNumber){
+      throw new BadRequestException("phoneNumber is required!");
+    }
+    let user: Users = await this.usersRepo.findOne({
+      where: {
+        phone: phoneNumber,
+      },
+    });
+    return user;
+  }
 }

@@ -31,6 +31,7 @@ import { OtpModule } from './otp/otp.module';
 import { TaxsModule } from './taxs/taxs.module';
 import { MailModule } from './mail/mail.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { SmsModule } from './sms/sms.module';
 
 @Module({
   imports: [
@@ -88,16 +89,19 @@ import { MailerModule } from '@nestjs-modules/mailer';
     OtpModule,
     TaxsModule,
     MailModule,
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.mailgun.org',
-        port:587 ,
-        auth: {
-          user: 'postmaster@sandboxe75eacf0fbc84abeb8302c522d9b0782.mailgun.org',
-          pass: '1163719efd8b76cc6fdaf4a55ab66f91-7a3af442-c0db74ad',
-        },
-      },
-    }),
+  //   MailerModule.forRoot(
+  //   //   {
+  //   //   transport: {
+  //   //     host: 'smtp.mailgun.org',
+  //   //     port:587 ,
+  //   //     auth: {
+  //   //       user: 'postmaster@sandboxe75eacf0fbc84abeb8302c522d9b0782.mailgun.org',
+  //   //       pass: '1163719efd8b76cc6fdaf4a55ab66f91-7a3af442-c0db74ad',
+  //   //     },
+  //   //   },
+  //   // }
+  // ),
+    SmsModule,
     // MulterModule.register(),
   ],
   controllers: [AppController],

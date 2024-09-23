@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Mailgun, { MailgunMessageData } from 'mailgun.js';
 import FormData from 'form-data';
-import { MailerService } from '@nestjs-modules/mailer';
+// import { MailerService } from '@nestjs-modules/mailer';
 import ejs from "ejs";
 
 //M@e@o@w@1431@
@@ -11,7 +11,7 @@ export class MailService {
   private readonly logger = new Logger('MailService');
   constructor(
     private readonly configService: ConfigService,
-    private readonly mailerService: MailerService,
+    // private readonly mailerService: MailerService,
   ) {}
 
   //   public async sendMail() {
