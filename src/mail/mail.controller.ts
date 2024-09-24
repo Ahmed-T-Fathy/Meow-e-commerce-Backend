@@ -7,6 +7,6 @@ export class MailController {
     }
     @Post()
     async sendTestMail(){
-        return this.mailService.sendMail();
+        // return this.mailService.sendMail();
     }
 }

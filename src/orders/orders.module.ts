@@ -8,6 +8,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Basket } from 'src/basket/basket.entity';
 import { CouponsModule } from 'src/coupons/coupons.module';
 import { TaxsModule } from 'src/taxs/taxs.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { TaxsModule } from 'src/taxs/taxs.module';
     AuthModule,
     CouponsModule,
     TaxsModule,
+    MailModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

@@ -24,6 +24,7 @@ import { Coupon } from 'src/coupons/coupon.entity';
 import { CouponsService } from 'src/coupons/coupons.service';
 import { TaxsService } from 'src/taxs/taxs.service';
 import { CheckInvoiceDTO } from './dtos/check-invoice.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class OrdersService {
@@ -32,6 +33,7 @@ export class OrdersService {
     @InjectRepository(Basket) private basketRepo: Repository<Basket>,
     private readonly couponsService: CouponsService,
     private readonly taxsService: TaxsService,
+    private readonly mailService: MailService,
     private datasource: DataSource,
   ) {}
   async createOrder(user: Users, data: CreateOrderDTO) {
@@ -280,7 +282,7 @@ export class OrdersService {
               ? item.product_variant.product.after_discount_price
               : item.product_variant.product.price;
           order_item.product_variant = item.product_variant;
-          order_item.order = order;
+          // order_item.order = order;
 
           const product_variant = item.product_variant;
 
@@ -295,7 +297,9 @@ export class OrdersService {
       order.order_items = orderItems;
       // console.log(order);
 
-      return order;
+      
+      await this.mailService.sendMail(order as Invoice);
+      return order; 
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(err);

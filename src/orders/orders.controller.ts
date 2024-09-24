@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req, Request, Response, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersPaginationDTO } from './dtos/orders-pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';

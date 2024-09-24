@@ -1,9 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Response } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Mailgun, { MailgunMessageData } from 'mailgun.js';
 import FormData from 'form-data';
 // import { MailerService } from '@nestjs-modules/mailer';
 import ejs from "ejs";
+import path from 'path';
+import fs from 'fs/promises'; // Use promises for better async handling
 
 //M@e@o@w@1431@
 @Injectable()
@@ -39,15 +41,22 @@ export class MailService {
   //     }
   //   }
 
-  public async sendMail() {
+  public async sendMail(invoice:Invoice) {
     const mailgun = new Mailgun(FormData);
     const client = mailgun.client({
       username: 'api',
       key: this.configService.get<string>('MAILGUN_API_KEY'),
     });
     
-    let people =['geddy','neil','alex'];
-    let html=ejs.render('<%=people.join(", ");%>',{people});
+    const filePath = path.join(
+      __dirname,
+      '../../src/mail/template/test-mail.temp.ejs',
+    );
+
+
+    // Read the EJS file
+    const template = await fs.readFile(filePath, 'utf-8');
+    const html = ejs.render(template, { invoice });
     
     const messageData = {
       from: 'meowteamservices@gmail.com',
