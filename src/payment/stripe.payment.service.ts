@@ -24,8 +24,12 @@ export class StripePayment implements PaymentStartegy {
           {
             price_data: {
               currency: 'usd',
+              product_data: {
+                name: 'Sample Product',
+              },
               unit_amount: amount * 100, // Amount in cents (e.g., $20.00)
             },
+            quantity: 1,
           },
         ],
         // customer: 'cus_QwYcEdbZQhx30r', // Omitted
@@ -48,4 +52,6 @@ export class StripePayment implements PaymentStartegy {
       throw new InternalServerErrorException(err);
     }
   }
+
+  
 }
