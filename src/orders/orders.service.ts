@@ -25,6 +25,8 @@ import { CouponsService } from 'src/coupons/coupons.service';
 import { TaxsService } from 'src/taxs/taxs.service';
 import { CheckInvoiceDTO } from './dtos/check-invoice.dto';
 import { MailService } from 'src/mail/mail.service';
+import { PaymentFactory } from 'src/payment/payment.factory';
+import { PaymentMethod } from 'src/payment/payment-methods.enum';
 
 @Injectable()
 export class OrdersService {
@@ -35,8 +37,9 @@ export class OrdersService {
     private readonly taxsService: TaxsService,
     private readonly mailService: MailService,
     private datasource: DataSource,
+    private readonly paymentFactory: PaymentFactory,
   ) {}
-  async createOrder(user: Users, data: CreateOrderDTO) {
+  async placeOrder(user: Users, data: CreateOrderDTO) {
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -146,13 +149,18 @@ export class OrdersService {
         }),
       );
 
+      const paymentStratgy = this.paymentFactory.getPaymentMethod(
+        PaymentMethod.stripe,
+      );
+      await paymentStratgy.processPayment(total_price, order.id);
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('err');
+
       await queryRunner.manager.delete(BasketItem, { basket });
 
       await queryRunner.commitTransaction();
       return savedOrder;
     } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }
@@ -297,9 +305,8 @@ export class OrdersService {
       order.order_items = orderItems;
       // console.log(order);
 
-      
       await this.mailService.sendMail(order as Invoice);
-      return order; 
+      return order;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(err);

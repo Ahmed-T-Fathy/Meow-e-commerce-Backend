@@ -32,6 +32,7 @@ import { TaxsModule } from './taxs/taxs.module';
 import { MailModule } from './mail/mail.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { SmsModule } from './sms/sms.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { SmsModule } from './sms/sms.module';
     OtpModule,
     TaxsModule,
     MailModule,
+    PaymentModule,
   //   MailerModule.forRoot(
   //   //   {
   //   //   transport: {

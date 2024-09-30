@@ -21,8 +21,8 @@ export class OrdersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGaurd)
   @Post('')
-  async createOrder(@Request() req,@Body() data:CreateOrderDTO) {
-    return this.orderService.createOrder(req.user,data);
+  async placeOrder(@Request() req,@Body() data:CreateOrderDTO) {
+    return this.orderService.placeOrder(req.user,data);
   }
 
   @UseGuards(RolesGuard)
