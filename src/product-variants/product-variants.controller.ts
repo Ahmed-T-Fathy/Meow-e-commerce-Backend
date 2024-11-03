@@ -40,7 +40,7 @@ export class ProductVariantsController {
   }
 
 
-  @UseGuards(AuthGaurd)
+  // @UseGuards(AuthGaurd)
   @Get('')
   async getVariantsWithPagination(
     @Query() queryDto: VariantsPaginationDTO,

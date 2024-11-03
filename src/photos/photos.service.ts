@@ -63,7 +63,8 @@ export class PhotosService {
     options: IPaginationOptions,
     other: PhotosPaginationDTO,
   ): Promise<Pagination<Photo>> {
-    const queryBuilder = this.photoRepo.createQueryBuilder('p');
+    const queryBuilder = this.photoRepo.createQueryBuilder('p')
+    .leftJoinAndSelect("p.product","prod");
     if (other?.orderBy) {
       other.orderBy.forEach((orderBy) => {
         queryBuilder.addOrderBy(`p.${orderBy.field}`, orderBy.direction);
@@ -96,14 +97,16 @@ export class PhotosService {
     photo: Express.Multer.File,
     data: AssignPhotosDTO,
   ): Promise<Photo>{
+    
     const product = await this.productRepo.findOne({
       where: { id: data.productId },
     });
+
     if (!product) throw new NotFoundException('Product Not found!');
     // const color = await this.colorRepo.findOne({ where: { id: data.colorId } });
     // if (!color) throw new NotFoundException('Color Not found!');
-
-    let photoObj = data as DeepPartial<Photo>;
+    let photoObj:Photo= new Photo();
+    photoObj.product=product;
     photoObj.link = photo.path.replace('uploads', '');
     photoObj.is_main = true;
 

@@ -33,9 +33,9 @@ import { existsSync, mkdir, mkdirSync } from 'fs';
 export class PhotosController {
   constructor(private photosService: PhotosService) {}
 
-  @UseGuards(RolesGuard)
-  @Roles(Role.Admin)
-  @UseGuards(AuthGaurd)
+  // @UseGuards(RolesGuard)
+  // @Roles(Role.Admin)
+  // @UseGuards(AuthGaurd)
   @Get('')
   async getAllPhotos(
     @Query() queryDto: PhotosPaginationDTO,

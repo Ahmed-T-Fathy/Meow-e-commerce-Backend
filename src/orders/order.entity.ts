@@ -17,14 +17,44 @@ export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text', default: Orders_Status.outstanding})
+  @Column({ name: 'order_no', unique: true })
+  orderNo: number;
+
+  @Column({ type: 'text', default: Orders_Status.outstanding })
   status: string;
 
   @Column('decimal')
   total_price: number;
 
-  @Column({nullable:true})
-  address:string;
+  @Column('decimal', { name: 'before_discount' })
+  beforeDiscount: number;
+
+  @Column('decimal')
+  discount: number;
+
+  @Column('decimal')
+  tax: number;
+
+  @Column('decimal', { name: 'delivery_service' })
+  deliveryService: number;
+
+  @Column({ nullable: false })
+  address: string;
+
+  @Column({ nullable: false, name: 'postal_code' })
+  postalCode: string;
+
+  @Column({ nullable: false })
+  city: string;
+
+  @Column({ nullable: false })
+  zone: string;
+
+  @Column({ nullable: false })
+  location: string;
+
+  @Column({ nullable: false, name: 'phone_number' })
+  phoneNumber: string;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   order_items: OrderItem[];

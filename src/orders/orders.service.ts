@@ -20,18 +20,26 @@ import { Orders_Status } from './order-status';
 import { Basket } from 'src/basket/basket.entity';
 import { OrderItem } from 'src/order-items/order-item.entity';
 import { BasketItem } from 'src/basket-items/basket-item.entity';
+import { Coupon } from 'src/coupons/coupon.entity';
+import { CouponsService } from 'src/coupons/coupons.service';
+import { TaxsService } from 'src/taxs/taxs.service';
+import { CheckInvoiceDTO } from './dtos/check-invoice.dto';
+import { MailService } from 'src/mail/mail.service';
+import { PaymentFactory } from 'src/payment/payment.factory';
+import { PaymentMethod } from 'src/payment/payment-methods.enum';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
-    @InjectRepository(Users) private usersRepo: Repository<Users>,
     @InjectRepository(Basket) private basketRepo: Repository<Basket>,
+    private readonly couponsService: CouponsService,
+    private readonly taxsService: TaxsService,
+    private readonly mailService: MailService,
     private datasource: DataSource,
+    private readonly paymentFactory: PaymentFactory,
   ) {}
-
-  // https://chatgpt.com/c/a78c554c-b073-4752-8596-7612c6ac8aac
-  async createOrder(user: Users, data: CreateOrderDTO) {
+  async placeOrder(user: Users, data: CreateOrderDTO) {
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -68,14 +76,49 @@ export class OrdersService {
         },
         Promise.resolve(0),
       );
+      // get tax
+      const tax = await this.taxsService.getTaxByTitle('TAX');
+      const deliveryService =
+        await this.taxsService.getTaxByTitle('Delivery service');
+      total_price =
+        Number(total_price) + Number(tax.value) + Number(deliveryService.value);
+
+      let coupon: Coupon;
+      let before_discount: number = parseFloat(total_price.toFixed(2));
+      if (data.coupon) {
+        coupon = await this.couponsService.getCouponByName(data.coupon);
+      }
+      if (coupon)
+        total_price = parseFloat(coupon.getDiscount(total_price).toFixed(2));
+
+      coupon.usageNo = coupon.usageNo + 1;
+      await queryRunner.manager.save(coupon);
 
       //create new order instance
-      const order = new Order();
+      let order = new Order();
+      Object.assign(order, data);
+
+      //get order number
+      let lastestOrder = await this.orderRepo.find({
+        order: { orderNo: 'DESC' },
+      });
+
+      if (lastestOrder.length > 0 && lastestOrder[0]?.orderNo) {
+        order.orderNo = lastestOrder[0].orderNo + 1;
+      } else {
+        order.orderNo = 10000;
+      }
+
       order.user = user;
       order.status = Orders_Status.outstanding;
       order.total_price = total_price;
-      order.address = data.address;
+      order.beforeDiscount = before_discount;
+      order.discount = parseFloat((before_discount - total_price).toFixed(2));
+      order.tax = tax.value;
+      order.deliveryService = deliveryService.value;
+
       const savedOrder = await queryRunner.manager.save(order);
+      // throw new InternalServerErrorException("err");
 
       await Promise.all(
         basket.basket_items.map(async (item) => {
@@ -106,37 +149,21 @@ export class OrdersService {
         }),
       );
 
+      const paymentStratgy = this.paymentFactory.getPaymentMethod(
+        PaymentMethod.stripe,
+      );
+      await paymentStratgy.processPayment(total_price, order.id);
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('err');
+
       await queryRunner.manager.delete(BasketItem, { basket });
 
-      // Commit transaction
       await queryRunner.commitTransaction();
-
       return savedOrder;
     } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }
-    // const queryBuilder = this.orderRepo.createQueryBuilder('o');
-    // queryBuilder.where('o.user_id = :user_id', { user_id: data.user_id });
-    // queryBuilder.andWhere("o.status = 'outstanding'");
-    // const result: Order = await queryBuilder.getOne();
-    // if (result) {
-    //   throw new ConflictException('You have alread outstanding order');
-    // }
-
-    // const order = await this.orderRepo
-    //   .createQueryBuilder()
-    //   .insert()
-    //   .into('order')
-    //   .values({
-    //     user: { id: data.user_id },
-    //     total_price: 0,
-    //     status: 'outstanding',
-    //   })
-    //   .execute();
-    // return order.identifiers[0];
   }
 
   async pagenateOrders(
@@ -181,5 +208,110 @@ export class OrdersService {
     let obj: DeepPartial<Order> = updateDto as DeepPartial<Order>;
 
     return await this.orderRepo.update({ id }, obj);
+  }
+
+  async getinvoice(user: Users, data?: CheckInvoiceDTO) {
+    const queryRunner = this.datasource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const basket = await this.basketRepo.findOne({
+        where: { user: { id: user.id } },
+        relations: [
+          'basket_items',
+          'basket_items.product_variant',
+          'basket_items.product_variant.product',
+        ],
+      });
+
+      if (!basket) throw new NotFoundException('User have no basket!');
+
+      if (basket.basket_items.length === 0)
+        throw new NotFoundException('There is no items in the basket!');
+
+      // Get total price
+      let total_price = await basket.basket_items.reduce(
+        async (accumulatorPromise, basket_item) => {
+          let accumulator = await accumulatorPromise;
+
+          let price =
+            basket_item.product_variant.product.after_discount_price &&
+            basket_item.product_variant.product.after_discount_price != 0
+              ? basket_item.product_variant.product.after_discount_price
+              : basket_item.product_variant.product.price;
+
+          price = await Promise.resolve(price);
+
+          return accumulator + price * basket_item.quantity;
+        },
+        Promise.resolve(0),
+      );
+
+      // get tax
+      const tax = await this.taxsService.getTaxByTitle('TAX');
+      const deliveryService =
+        await this.taxsService.getTaxByTitle('Delivery service');
+      total_price =
+        Number(total_price) + Number(tax.value) + Number(deliveryService.value);
+
+      total_price = parseFloat(total_price.toFixed(2));
+      let coupon: Coupon;
+      let before_discount: number = total_price;
+      if (data.coupon) {
+        coupon = await this.couponsService.getCouponByName(data.coupon);
+      }
+
+      if (coupon) {
+        total_price = parseFloat(coupon.getDiscount(total_price).toFixed(2));
+        coupon.usageNo = coupon.usageNo + 1;
+      }
+
+      //create new order instance
+      let order = new Order();
+      Object.assign(order, data);
+      order.user = user;
+      order.status = Orders_Status.outstanding;
+      order.total_price = total_price;
+      order.beforeDiscount = before_discount;
+      order.discount = Math.abs(
+        parseFloat((before_discount - total_price).toFixed(2)),
+      );
+      order.tax = tax.value;
+      order.deliveryService = deliveryService.value;
+
+      let orderItems = await Promise.all(
+        basket.basket_items.map(async (item) => {
+          // create order items form the product item
+          const order_item = new OrderItem();
+          order_item.quantity = item.quantity;
+          order_item.price =
+            item.product_variant.product.after_discount_price &&
+            item.product_variant.product.after_discount_price != 0
+              ? item.product_variant.product.after_discount_price
+              : item.product_variant.product.price;
+          order_item.product_variant = item.product_variant;
+          // order_item.order = order;
+
+          const product_variant = item.product_variant;
+
+          if (product_variant.stock < item.quantity)
+            throw new ConflictException(
+              `This in valid quantity while the product variant: ${product_variant}`,
+            );
+
+          return order_item;
+        }),
+      );
+      order.order_items = orderItems;
+      // console.log(order);
+
+      await this.mailService.sendMail(order as Invoice);
+      return order;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

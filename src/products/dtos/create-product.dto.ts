@@ -1,5 +1,15 @@
-import { Expose } from 'class-transformer';
-import { IsArray, IsDecimal, IsNotEmpty, IsOptional, IsString, IsUUID ,ValidatorConstraint} from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import {
+  IsArray,
+  IsDecimal,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  ValidatorConstraint,
+} from 'class-validator';
 import { Category } from 'src/categories/category.entity';
 
 export class CreateProductDTO {
@@ -15,16 +25,19 @@ export class CreateProductDTO {
   @IsOptional()
   short_description: string;
 
-  @IsDecimal()
+  @Type(() => Number)
+  @IsNumber({}, { message: 'price must be a valid number' })
+  @Min(1)
   @IsNotEmpty()
   price: number;
 
-  @IsDecimal()
+  @IsNumber({}, { message: 'after_discount_price must be a valid number' })
+  @Min(1)
   @IsOptional()
   after_discount_price: number;
 
   @IsArray()
   @IsString({ each: true })
-  @IsUUID('4',{each:true})
+  @IsUUID('4', { each: true })
   categories: string[];
 }

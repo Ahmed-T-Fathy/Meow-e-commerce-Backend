@@ -9,19 +9,9 @@ import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports:[UsersModule,
-    JwtModule.registerAsync({
-    inject: [ConfigService],
-    useFactory: (config:ConfigService) => {
-      return {
-        //global: true,
-        secret: config.get<string>('JWT_SECRET'),
-        signOptions:{expiresIn:'1h'}
-      };
-    }
-  }),
   TypeOrmModule.forFeature([Users])],
   providers: [AuthService],
   controllers: [AuthController],
-  exports:[JwtModule,UsersModule]
+  exports:[UsersModule]
 })
 export class AuthModule {}

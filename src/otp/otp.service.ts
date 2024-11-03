@@ -1,77 +1,34 @@
-import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { AxiosResponse } from 'axios';
-import { ConfigService } from '@nestjs/config';
-import * as Twilio from 'twilio';
-import { lastValueFrom } from 'rxjs';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Otp } from './otp.entity';
+import { GetOtpDTO } from './dtos/get-otp.dto';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class OtpService {
-  //   private readonly client: Twilio.Twilio;
-  //   private readonly verifyServiceSid: string;
-  private readonly apiUrl; // Replace with actual URL
-  private readonly apiKey; // Replace with your API key
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
-    // this.client = Twilio(
-    //   this.configService.get<string>('TWILIO_ACCOUNT_SID'),
-    //   this.configService.get<string>('TWILIO_AUTH_TOKEN'),
-    // );
-    // this.verifyServiceSid = this.configService.get<string>(
-    //   'TWILIO_VERIFICATION_SERVICE_SID',
-    // );
-    this.apiKey = this.configService.get<string>('SMS_API_KEY');
-    this.apiUrl = this.configService.get<string>('SMS_API_URL');
+    @InjectRepository(Otp) private readonly otpRepo: Repository<Otp>,
+  ) {}
+
+  async getOtp(otpObj: GetOtpDTO) {
+    await this.otpRepo.delete({ phoneNumber: otpObj.phoneNumber });
+    let otp: Otp = new Otp();
+    otp.generateOTP();
+    Object.assign(otp, otpObj);
+    await this.otpRepo.save(otp);
+    return otp;
   }
 
-  //   async sendOtpTwilio(to: string, otpCode: string): Promise<void> {
-  //     const message = `Your OTP code is ${otpCode}. It is valid for 10 minutes.`;
+  async verifyOtp(otp: number) {
+    let _otp = await this.otpRepo.findOne({ where: { otp } });
 
-  //     await this.client.messages.create({
-  //       body: message,
-  //       from: this.configService.get<string>('TWILIO_SENDER_PHONE_NUMBER'),
-  //       to,
-  //     });
-  //   }
+    if (!_otp) throw new NotFoundException('Incorrect OTP!');
 
-  async sendOtpOurSMS(to: string, otpCode: string) {
-    const token = this.configService.get<string>('SMS_API_TOKEN');
-    const src = 'OurSms.Net';
+    if (!_otp.isValid()) throw new BadRequestException('OTP exceed it\'s valid time!');
 
-    // Use a single number directly
-    const payload = new URLSearchParams({
-      token,
-      src,
-      dests: to, // Single phone numbe
-      body: "message",
-    }).toString();
+    _otp.getToken();
 
-    console.log('Sending payload:', payload); // Log the payload
-
-    try {
-      const response: AxiosResponse<any> = await lastValueFrom(
-        this.httpService.post(this.apiUrl, payload, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }),
-      );
-
-      if (response.status === 200) {
-        return 'SMS sent successfully.';
-      } else {
-        return `Failed to send SMS. Error: ${response.data}`;
-      }
-    } catch (error) {
-      console.error(
-        'Error sending SMS:',
-        error.response?.data || error.message,
-      );
-      throw new Error(
-        `Failed to send SMS. Error: ${error.response?.data || error.message}`,
-      );
-    }
+    await this.otpRepo.save(_otp);
   }
 }

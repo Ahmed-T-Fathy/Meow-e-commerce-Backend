@@ -6,19 +6,49 @@ import { UserDTO } from "src/users/dtos/user.dto";
 export class OrderDTO{
     @Expose()
     id:string;
+    
+    @Expose()
+    orderNo:string;
 
     @Expose()
     status:string;
+    
+    @Expose()
+    total_price:string;
+
+    @Expose()
+    beforeDiscount:number;
+
+    @Expose()
+    discount:number;
+
+    @Expose()
+    tax:number;
+
+    @Expose()
+    deliveryService:number;
 
     @Expose()
     address:string;
 
     @Expose()
-    @Type(()=>UserDTO)
-    user:UserDTO;
+    postalCode:string;
 
     @Expose()
-    total_price:string;
+    city:string;
+
+    @Expose()
+    zone:string;
+
+    @Expose()
+    location:string;
+
+    @Expose()
+    phoneNumber:string;
+
+    @Expose()
+    @Type(()=>UserDTO)
+    user:UserDTO;
 
     @Expose()
     @Type(()=>OrderItemDTO)

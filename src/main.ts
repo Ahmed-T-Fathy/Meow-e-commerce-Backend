@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './exception-filters/http.exception-filter';
 import helmet from 'helmet';
-
+import ejs from 'ejs';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -31,7 +31,22 @@ async function bootstrap() {
   app.use(helmet());
   const port = process.env.PORT || 3000;
   console.log(port);
-
+  
   await app.listen(port);
 }
 bootstrap();
+
+
+/**
+ * Postgres user
+ * name: postgres
+ * pass: postgresadmin
+ * 
+ * Test Db
+ * name: meow_test
+ * 
+ * Meow User
+ * name: meow
+ * pass: meowadmin1431@
+ * 
+ */

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Invoice</title>
+    <style>
+        body {
+            font-family: 'sego ui light';
+            background-color:rgb(255, 248, 240);
+            padding: 20px;
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgb(53, 53, 53);
+            padding: 20px;
+            background-color: rgb(255, 248, 240);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: rgb(53, 53, 53);
+        
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+        th {
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 >الفاتورة</h1>
+        <p><strong>اسم المستخدم:</strong> <%= invoice.user.username %></p>
+        <p><strong>البريد الإلكتروني:</strong> <%= invoice.user.email %></p>
+        <p><strong>الهاتف:</strong> <%= invoice.user.phone %></p>
+        <p><strong>الحالة:</strong> <%= invoice.status %></p>
+        <p><strong>المجموع الكلي:</strong> <%= invoice.total_price %> جنيه</p>
+        <p><strong>الضرائب:</strong> <%= invoice.tax %> جنيه</p>
+        <p><strong>خدمة التوصيل:</strong> <%= invoice.deliveryService %> جنيه</p>
+        <p><strong>قبل الخصم:</strong> <%= invoice.beforeDiscount %> جنيه</p>
+        <p><strong>الخصم:</strong> <%= invoice.discount %> جنيه</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم المنتج</th>
+                    <th>المقاس</th>
+                    <th>الكمية</th>
+                    <th>السعر لكل وحدة</th>
+                    <th>إجمالي السعر</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% invoice.order_items.forEach(item => { %>
+                    <tr>
+                        <td><%= item.product_variant.product.name %></td>
+                        <td><%= item.product_variant.size %></td>
+                        <td><%= item.quantity %></td>
+                        <td><%= item.price %> جنيه</td>
+                        <td><%= (item.quantity * item.price).toFixed(2) %> جنيه</td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

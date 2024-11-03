@@ -22,6 +22,7 @@ export class BasketItemsController {
     return await this.basketItemsService.AddItemToBasket(data);
   }
 
+  // @Serialize(BasketItemDTO)
   @UseGuards(AuthGaurd)
   @Get()
   async paginatebasketItems(
@@ -30,7 +31,7 @@ export class BasketItemsController {
     const page = queryDto?.page;
     const limit = queryDto?.limit;
 
-    return await this.basketItemsService.paginateItems(
+    const items= await this.basketItemsService.paginateItems(
       {
         page,
         limit,
@@ -38,6 +39,9 @@ export class BasketItemsController {
       },
       queryDto,
     );
+    // console.log(items);
+    
+    return items;
   }
 
   @UseGuards(AuthGaurd)

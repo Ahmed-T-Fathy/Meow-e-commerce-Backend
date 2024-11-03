@@ -29,6 +29,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { LoggingMiddleWare } from './middlewares/logging.middleware';
 import { OtpModule } from './otp/otp.module';
 import { TaxsModule } from './taxs/taxs.module';
+import { MailModule } from './mail/mail.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { SmsModule } from './sms/sms.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -36,21 +40,22 @@ import { TaxsModule } from './taxs/taxs.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          url: config.get<string>('DATABASE_URL'),
-          ssl: {
-            rejectUnauthorized: false, // Set to true if you have a valid certificate
-          },
-          entities: ['dist/**/*.entity{.ts,.js}'],
-          logging: true,
-          synchronize: true,
-        };
-      },
-    }),
+    // TypeOrmModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => {
+    //     return {
+    //       type: 'postgres',
+    //       url: config.get<string>('DATABASE_URL'),
+    //       // ssl: {
+    //       //   rejectUnauthorized: false, // Set to true if you have a valid certificate
+    //       // },
+    //       entities: ['dist/**/*.entity{.ts,.js}'],
+    //       logging: true,
+    //       synchronize: true,
+    //     };
+    //   },
+    // }),
+    TypeOrmModule.forRoot(typeOrmConfig),
     // TypeOrmModule.forRootAsync({
     //   inject: [ConfigService],
     //   useFactory: (config: ConfigService) => {
@@ -82,10 +87,20 @@ import { TaxsModule } from './taxs/taxs.module';
       rootPath: join(__dirname, '..', 'uploads'),
     }),
     ColorsModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      global:true,
+      useFactory: (config:ConfigService) => {
+        return {
+          //global: true,
+          secret: config.get<string>('JWT_SECRET'),
+          signOptions:{expiresIn:config.get<string>('JWT_EXPIRESIN')}
+        };
+      }
+    }),
     AuthModule,
     OtpModule,
     TaxsModule,
-    // MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,5 +9,6 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [TypeOrmModule.forFeature([Tax]), AuthModule],
   controllers: [TaxsController],
   providers: [TaxsService],
+  exports:[TaxsService]
 })
 export class TaxsModule {}

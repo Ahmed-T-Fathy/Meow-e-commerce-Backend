@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req, Request, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req, Request, Response, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrdersPaginationDTO } from './dtos/orders-pagination.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
@@ -12,6 +12,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/users/roles.enum';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { CreateOrderDTO } from './dtos/create-order.dto';
+import { CheckInvoiceDTO } from './dtos/check-invoice.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -20,8 +21,8 @@ export class OrdersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGaurd)
   @Post('')
-  async createOrder(@Request() req,@Body() data:CreateOrderDTO) {
-    return this.orderService.createOrder(req.user,data);
+  async placeOrder(@Request() req,@Body() data:CreateOrderDTO) {
+    return this.orderService.placeOrder(req.user,data);
   }
 
   @UseGuards(RolesGuard)
@@ -74,4 +75,10 @@ export class OrdersController {
     return await this.orderService.deleteOrder(paramObj.id);
   }
 
+  @Serialize(OrderDTO)
+  @UseGuards(AuthGaurd)
+  @Get('invoice/check')
+  async getInvoice(@Request() req,@Query() data:CheckInvoiceDTO){
+    return await this.orderService.getinvoice(req.user,data);
+  }
 }
