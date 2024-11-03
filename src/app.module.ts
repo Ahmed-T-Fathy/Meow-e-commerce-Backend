@@ -42,9 +42,9 @@ import { TaxsModule } from './taxs/taxs.module';
         return {
           type: 'postgres',
           url: config.get<string>('DATABASE_URL'),
-          ssl: {
-            rejectUnauthorized: false, // Set to true if you have a valid certificate
-          },
+          // ssl: {
+          //   rejectUnauthorized: false, // Set to true if you have a valid certificate
+          // },
           entities: ['dist/**/*.entity{.ts,.js}'],
           logging: true,
           synchronize: true,
@@ -82,10 +82,20 @@ import { TaxsModule } from './taxs/taxs.module';
       rootPath: join(__dirname, '..', 'uploads'),
     }),
     ColorsModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      global:true,
+      useFactory: (config:ConfigService) => {
+        return {
+          //global: true,
+          secret: config.get<string>('JWT_SECRET'),
+          signOptions:{expiresIn:config.get<string>('JWT_EXPIRESIN')}
+        };
+      }
+    }),
     AuthModule,
     OtpModule,
     TaxsModule,
-    // MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],
