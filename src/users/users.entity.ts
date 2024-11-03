@@ -94,6 +94,6 @@ export class Users {
   async generateToken(): Promise<string> {
     const payload = { id: this.id };
     const secret = process.env.JWT_SECRET;
-    return await jwt.sign(payload, secret, { expiresIn: '1h' });
+    return await jwt.sign(payload, secret, { expiresIn: process.env.JWT_EXPIRESIN });
   }
 }

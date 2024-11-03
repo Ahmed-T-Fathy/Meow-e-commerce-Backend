@@ -40,21 +40,22 @@ import { PaymentModule } from './payment/payment.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          url: config.get<string>('DATABASE_URL'),
-          // ssl: {
-          //   rejectUnauthorized: false, // Set to true if you have a valid certificate
-          // },
-          entities: ['dist/**/*.entity{.ts,.js}'],
-          logging: true,
-          synchronize: true,
-        };
-      },
-    }),
+    // TypeOrmModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => {
+    //     return {
+    //       type: 'postgres',
+    //       url: config.get<string>('DATABASE_URL'),
+    //       // ssl: {
+    //       //   rejectUnauthorized: false, // Set to true if you have a valid certificate
+    //       // },
+    //       entities: ['dist/**/*.entity{.ts,.js}'],
+    //       logging: true,
+    //       synchronize: true,
+    //     };
+    //   },
+    // }),
+    TypeOrmModule.forRoot(typeOrmConfig),
     // TypeOrmModule.forRootAsync({
     //   inject: [ConfigService],
     //   useFactory: (config: ConfigService) => {
@@ -86,25 +87,20 @@ import { PaymentModule } from './payment/payment.module';
       rootPath: join(__dirname, '..', 'uploads'),
     }),
     ColorsModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      global:true,
+      useFactory: (config:ConfigService) => {
+        return {
+          //global: true,
+          secret: config.get<string>('JWT_SECRET'),
+          signOptions:{expiresIn:config.get<string>('JWT_EXPIRESIN')}
+        };
+      }
+    }),
     AuthModule,
     OtpModule,
     TaxsModule,
-    MailModule,
-    PaymentModule,
-  //   MailerModule.forRoot(
-  //   //   {
-  //   //   transport: {
-  //   //     host: 'smtp.mailgun.org',
-  //   //     port:587 ,
-  //   //     auth: {
-  //   //       user: 'postmaster@sandboxe75eacf0fbc84abeb8302c522d9b0782.mailgun.org',
-  //   //       pass: '1163719efd8b76cc6fdaf4a55ab66f91-7a3af442-c0db74ad',
-  //   //     },
-  //   //   },
-  //   // }
-  // ),
-    SmsModule,
-    // MulterModule.register(),
   ],
   controllers: [AppController],
   providers: [AppService],
