@@ -33,6 +33,7 @@ import { MailModule } from './mail/mail.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { SmsModule } from './sms/sms.module';
 import { PaymentModule } from './payment/payment.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -101,6 +102,7 @@ import { PaymentModule } from './payment/payment.module';
     AuthModule,
     OtpModule,
     TaxsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

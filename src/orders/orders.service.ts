@@ -53,25 +53,27 @@ export class OrdersService {
           'basket_items.product_variant.product',
         ],
       });
-
+      
       if (!basket) throw new NotFoundException('User have no basket!');
-
+      
       if (basket.basket_items.length === 0)
         throw new NotFoundException('There is no items in the basket!');
-
+      // console.log(
+      //   `total_price:*************************************** ${JSON.stringify(basket)}`,
+      // );
       // Get total price
       let total_price = await basket.basket_items.reduce(
         async (accumulatorPromise, basket_item) => {
           let accumulator = await accumulatorPromise;
-
+          
           let price =
-            basket_item.product_variant.product.after_discount_price &&
-            basket_item.product_variant.product.after_discount_price != 0
-              ? basket_item.product_variant.product.after_discount_price
-              : basket_item.product_variant.product.price;
-
+          basket_item.product_variant.product.after_discount_price &&
+          basket_item.product_variant.product.after_discount_price != 0
+          ? basket_item.product_variant.product.after_discount_price
+          : basket_item.product_variant.product.price;
+          
           price = await Promise.resolve(price);
-
+          
           return accumulator + price * basket_item.quantity;
         },
         Promise.resolve(0),
@@ -79,25 +81,27 @@ export class OrdersService {
       // get tax
       const tax = await this.taxsService.getTaxByTitle('TAX');
       const deliveryService =
-        await this.taxsService.getTaxByTitle('Delivery service');
+      await this.taxsService.getTaxByTitle('Delivery service');
       total_price =
-        Number(total_price) + Number(tax.value) + Number(deliveryService.value);
-
+      Number(total_price) + Number(tax.value) + Number(deliveryService.value);
+      
       let coupon: Coupon;
       let before_discount: number = parseFloat(total_price.toFixed(2));
       if (data.coupon) {
         coupon = await this.couponsService.getCouponByName(data.coupon);
       }
-      if (coupon)
+      if (coupon) {
         total_price = parseFloat(coupon.getDiscount(total_price).toFixed(2));
-
-      coupon.usageNo = coupon.usageNo + 1;
-      await queryRunner.manager.save(coupon);
-
+        coupon.usageNo = coupon.usageNo + 1;
+        
+        await queryRunner.manager.save(coupon);
+      }
+      
+      
       //create new order instance
       let order = new Order();
       Object.assign(order, data);
-
+      
       //get order number
       let lastestOrder = await this.orderRepo.find({
         order: { orderNo: 'DESC' },
@@ -109,6 +113,7 @@ export class OrdersService {
         order.orderNo = 10000;
       }
 
+      
       order.user = user;
       order.status = Orders_Status.outstanding;
       order.total_price = total_price;
@@ -116,6 +121,7 @@ export class OrdersService {
       order.discount = parseFloat((before_discount - total_price).toFixed(2));
       order.tax = tax.value;
       order.deliveryService = deliveryService.value;
+      // return order;
 
       const savedOrder = await queryRunner.manager.save(order);
       // throw new InternalServerErrorException("err");
@@ -149,18 +155,18 @@ export class OrdersService {
         }),
       );
 
-      const paymentStratgy = this.paymentFactory.getPaymentMethod(
-        PaymentMethod.stripe,
-      );
-      await paymentStratgy.processPayment(total_price, order.id);
-      await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException('err');
+      // const paymentStratgy = this.paymentFactory.getPaymentMethod(
+      //   PaymentMethod.stripe,
+      // );
+      // await paymentStratgy.processPayment(total_price, order.id);
 
       await queryRunner.manager.delete(BasketItem, { basket });
 
       await queryRunner.commitTransaction();
       return savedOrder;
     } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err);
     } finally {
       await queryRunner.release();
     }
@@ -305,7 +311,7 @@ export class OrdersService {
       order.order_items = orderItems;
       // console.log(order);
 
-      await this.mailService.sendMail(order as Invoice);
+      // await this.mailService.sendMail(order as Invoice);
       return order;
     } catch (err) {
       await queryRunner.rollbackTransaction();
