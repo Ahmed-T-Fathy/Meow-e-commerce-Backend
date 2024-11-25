@@ -263,14 +263,16 @@ export class OrdersService {
       total_price = parseFloat(total_price.toFixed(2));
       let coupon: Coupon;
       let before_discount: number = total_price;
+
       if (data.coupon) {
         coupon = await this.couponsService.getCouponByName(data.coupon);
       }
-
       if (coupon) {
         total_price = parseFloat(coupon.getDiscount(total_price).toFixed(2));
         coupon.usageNo = coupon.usageNo + 1;
       }
+      // console.log(coupon);
+      // return coupon;
 
       //create new order instance
       let order = new Order();
