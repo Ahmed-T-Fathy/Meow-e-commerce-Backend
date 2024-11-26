@@ -19,4 +19,9 @@ export class AnalyticsController {
   async getRevenueAnlytics() {
     return this.analyticsService.getRevenueAnalytics();
   }
+
+  @Get('/category-analytics')
+  async getCategoryAnlytics() {
+    return this.analyticsService.getCategoryAnalytics();
+  }
 }

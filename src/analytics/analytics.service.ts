@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Category } from 'src/categories/category.entity';
 import { Coupon } from 'src/coupons/coupon.entity';
 import { OrderItem } from 'src/order-items/order-item.entity';
 import { Orders_Status } from 'src/orders/order-status';
@@ -115,6 +116,63 @@ export class AnalyticsService {
       Object.assign(result, coupons);
       Object.assign(result, sales);
       Object.assign(result, taxs);
+
+      return result;
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async getCategoryAnalytics() {
+    try {
+      const result = await this.dataSource
+        .createQueryBuilder()
+        .select('category.name', 'category_name')
+        .addSelect('category.id', 'category_id')
+        .addSelect(
+          `(SELECT COALESCE(SUM(product_variant.stock), 0)
+            FROM product_variant
+            INNER JOIN product_categories ON product_variant.product_id = product_categories.product_id
+            WHERE product_categories.category_id = category.id)`,
+            'stock',
+        )
+        .addSelect(
+          `COALESCE(SUM(CASE WHEN order.status = 'Completed' THEN order_item.quantity ELSE 0 END), 0)`,
+          'sold',
+        )
+        .from(Category, 'category')
+        .leftJoin(
+          'product_categories',
+          'product_categories',
+          'category.id = product_categories.category_id',
+        )
+        .leftJoin(
+          Product,
+          'product',
+          'product.id = product_categories.product_id',
+        )
+        .leftJoin(
+          ProductVariant,
+          'product_variant',
+          'product_variant.product_id = product.id',
+        )
+        .leftJoin(
+          OrderItem,
+          'order_item',
+          'order_item.product_variant_id = product_variant.id',
+        )
+        .leftJoin(Order, 'order', 'order_item.order_id = order.id')
+        .groupBy('category.id')
+        .addGroupBy('category.name')
+        .getRawMany();
+
+      // const rawStock = await this.dataSource
+      //   .createQueryBuilder()
+      //   .select('SUM(product_variant.stock)', 'total_stock')
+      //   .from(ProductVariant, 'product_variant')
+      //   .getRawOne();
+
+      // console.log(rawStock); // Check if it returns 62
 
       return result;
     } catch (err) {
