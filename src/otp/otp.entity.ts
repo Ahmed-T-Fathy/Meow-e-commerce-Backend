@@ -45,6 +45,7 @@ export class Otp {
   isValidToken(): boolean {
     let gap =
       (new Date().getTime() - new Date(this.created_at).getTime()) / 1000;
+      
     return gap <= 180;
   }
 }

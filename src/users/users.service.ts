@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -120,5 +121,34 @@ export class UsersService {
       },
     });
     return user;
+  }
+  async getUserByEmail(email: string): Promise<Users> {
+    if (!email) {
+      throw new BadRequestException('email is required!');
+    }
+    let user: Users = await this.usersRepo.findOne({
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found!');
+    }
+    return user;
+  }
+
+  async verifyMe(phoneNumber: string) {
+    try {
+      let user: Users = await this.usersRepo.findOne({
+        where: {
+          phone:phoneNumber
+        }
+      })
+      user.is_verified = true;
+
+      return await this.usersRepo.save(user);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
   }
 }

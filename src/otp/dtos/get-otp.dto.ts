@@ -1,11 +1,10 @@
-import { IsNotEmpty, IsPhoneNumber } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsPhoneNumber } from 'class-validator';
 import { isPhoneExist } from '../custom-validators/phone-number-exist.validator';
 import { Type } from 'class-transformer';
 
 export class GetOtpDTO {
   @IsNotEmpty()
-  @IsPhoneNumber()
+  @IsEmail()
   @Type(()=>String)
-  // @isPhoneExist()
-  phoneNumber: string;
+  email: string;
 }

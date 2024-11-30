@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { UsersService } from 'src/users/users.service';
 import { AuthGaurd } from './guards/auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDTO } from 'src/users/dtos/user.dto';
+import { VerifyMeDTO } from './dtos/verify-me.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -40,5 +42,11 @@ export class AuthController {
   @Get('me')
   async me(@Request() req) {
     return await this.usersService.findUserById(req.user.id);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('verify-me')
+  async verifyMe(@Query() data: VerifyMeDTO) {
+     return await this.authService.verifyMe(data)
   }
 }

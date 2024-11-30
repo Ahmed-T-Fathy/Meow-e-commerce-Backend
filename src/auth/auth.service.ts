@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,10 +12,13 @@ import { Users } from 'src/users/users.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { LoginDataDTO } from './dtos/login.dto';
 import { Roles } from './decorators/roles.decorator';
+import { VerifyMeDTO } from './dtos/verify-me.dto';
+import { OtpService } from 'src/otp/otp.service';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(Users) private usersRepo: Repository<Users>) {}
+  constructor(@InjectRepository(Users) private usersRepo: Repository<Users>,
+  private readonly otpService:OtpService) { }
 
   async signup(data: CreateUserDTO) {
     const user = await this.usersRepo.find({
@@ -53,5 +57,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password!');
     }
     return { access_token: await user.generateToken() };
+  }
+
+  async verifyMe(data: VerifyMeDTO) {
+    try {
+      
+      return await this.otpService.verifyToken(data.token);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
   }
 }

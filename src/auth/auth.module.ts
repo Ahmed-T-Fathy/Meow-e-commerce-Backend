@@ -6,12 +6,12 @@ import { Users } from 'src/users/users.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from 'src/users/users.module';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
-  imports:[UsersModule,
-  TypeOrmModule.forFeature([Users])],
+  imports: [UsersModule, TypeOrmModule.forFeature([Users]), OtpModule],
   providers: [AuthService],
   controllers: [AuthController],
-  exports:[UsersModule]
+  exports: [UsersModule],
 })
 export class AuthModule {}
