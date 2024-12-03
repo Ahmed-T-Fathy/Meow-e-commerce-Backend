@@ -1,8 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Basket } from './basket.entity';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Users } from 'src/users/users.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class BasketService {
@@ -41,8 +46,39 @@ export class BasketService {
     return basket;
   }
 
-  async updateBasketDateAndreminderFlag(id:string){
+  async updateBasketDateAndreminderFlag(id: string) {
     await this.getBasketById(id);
-    await this.basketRepo.update({id},{updated_at:new Date(),reminder_sent:false});
-}
+    await this.basketRepo.update(
+      { id },
+      { updated_at: new Date(), reminder_sent: false },
+    );
+  }
+
+  // @Cron('*/10 * * * * *')
+  // async basketRemender() {
+  //   try {
+  //     const now = new Date();
+  //     const hours = String(now.getHours()).padStart(2, '0');
+  //     const minutes = String(now.getMinutes()).padStart(2, '0');
+  //     const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  //     console.log(
+  //       `Hey, I am logging time now is: ${hours}:${minutes}:${seconds}`,
+  //     );
+
+  //     const oneHourAgo = new Date();
+  //     oneHourAgo.setHours(oneHourAgo.getHours() - 1);
+
+  //     const baskets = await this.basketRepo.find({
+  //       where: {
+  //         reminder_sent: false,
+  //         updated_at: LessThan(oneHourAgo), // updated_at is older than one hour
+  //       },
+  //     });
+  //     console.log(baskets);
+      
+  //   } catch (err) {
+  //     throw new InternalServerErrorException(err);
+  //   }
+  // }
 }

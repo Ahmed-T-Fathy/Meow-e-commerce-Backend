@@ -201,10 +201,17 @@ export class OrdersService {
   async getOrderById(id: string): Promise<Order> {
     const order = await this.orderRepo.findOne({
       where: { id },
-      relations: ['user', 'order_items'],
+      relations: [
+        'user',
+        'order_items',
+        'order_items.product_variant',
+        'order_items.product_variant.product',
+        'order_items.product_variant.product.categories',
+      ],
     });
+    
     if (!order) {
-      throw new NotFoundException('Order variant not found!');
+      throw new NotFoundException('Order not found!');
     }
     return order;
   }

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -18,10 +19,10 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import { EditUserProfileDTO } from './dtos/edit-user-profile.dto';
 import { UsersService } from './users.service';
-import { query } from 'express';
 import { UsersPaginationDTO } from './dtos/users-pagination-query.dto';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Users } from './users.entity';
+import { CreateUserDTO } from './dtos/create-user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -30,12 +31,22 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @Roles(Role.Admin)
   @UseGuards(AuthGaurd)
+  @Post()
+  async createUser(@Body() data: CreateUserDTO) {
+    return await this.users_sevice.createUser(data);
+   } 
+    
+    
+    
+  @UseGuards(RolesGuard)
+  @Roles(Role.Admin)
+  @UseGuards(AuthGaurd)
   @Patch('edit/:id')
-  updateUser(
+  async updateUser(
     @Param() paramObj: UUIDDTO,
     @Body() update_user_dto: UpdateUserDTO,
   ) {
-    return this.users_sevice.updateUser(paramObj.id, update_user_dto);
+    return await this.users_sevice.updateUser(paramObj.id, update_user_dto);
   }
 
   @UseGuards(RolesGuard)
@@ -84,8 +95,7 @@ export class UsersController {
   @Roles(Role.Admin)
   @UseGuards(AuthGaurd)
   @Delete('/:id')
-  async deleteUser(@Param() paramObj:UUIDDTO){
+  async deleteUser(@Param() paramObj: UUIDDTO) {
     return await this.users_sevice.deleteUser(paramObj.id);
   }
-
 }

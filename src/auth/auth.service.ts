@@ -47,7 +47,7 @@ export class AuthService {
     // user.is_verified=true;
     // user.role=Role.Admin;
     // await this.usersRepo.save(user);
-    console.log(user);
+    // console.log(user);
     
     if (!user.is_verified) throw new UnauthorizedException('you are not verified!');
     

@@ -34,9 +34,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { SmsModule } from './sms/sms.module';
 import { PaymentModule } from './payment/payment.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
