@@ -17,17 +17,16 @@ import { OtpService } from 'src/otp/otp.service';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectRepository(Users) private usersRepo: Repository<Users>,
-  private readonly otpService:OtpService) { }
+  constructor(
+    @InjectRepository(Users) private usersRepo: Repository<Users>,
+    private readonly otpService: OtpService,
+  ) {}
 
   async signup(data: CreateUserDTO) {
     const user = await this.usersRepo.find({
-      where: [
-        { email: data.email },
-        { phone: data.phone }
-      ]
+      where: [{ email: data.email }, { phone: data.phone }],
     });
-    
+
     if (user.length !== 0)
       throw new ConflictException('This email or phone already in exist!');
 
@@ -41,16 +40,21 @@ export class AuthService {
 
   async login(data: LoginDataDTO) {
     const user = await this.usersRepo.findOne({
-      where: { email: data.email },
+      where: [
+        { email: data.email_phone }, 
+        { phone: data.email_phone }, 
+      ],
     });
-    if (!user) throw new UnauthorizedException('Invalid email or password!');
+
+    if (!user) throw new UnauthorizedException('Invalid email or phone number or password!');
     // user.is_verified=true;
     // user.role=Role.Admin;
     // await this.usersRepo.save(user);
     // console.log(user);
-    
-    if (!user.is_verified) throw new UnauthorizedException('you are not verified!');
-    
+
+    if (!user.is_verified)
+      throw new UnauthorizedException('you are not verified!');
+
     const isPasswordValid = await user.comparePassword(data.password);
 
     if (!isPasswordValid) {
@@ -61,7 +65,6 @@ export class AuthService {
 
   async verifyMe(data: VerifyMeDTO) {
     try {
-      
       return await this.otpService.verifyToken(data.token);
     } catch (err) {
       throw new InternalServerErrorException(err);
