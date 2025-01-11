@@ -2,7 +2,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 // import { DatabaseLogger } from 'src/logger/database-logger';
 import { config as dotenvConfig } from 'dotenv';
 import { join } from 'path';
-console.log('**********', __dirname);
+// console.log('**********', __dirname);
 
 // by remove thin line it will read from env vars in user in enviroment in os
 dotenvConfig({ path: '.env' });

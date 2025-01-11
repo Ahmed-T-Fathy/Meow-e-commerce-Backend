@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,10 +17,20 @@ import {
 } from 'nestjs-typeorm-paginate';
 import { UsersPaginationDTO } from './dtos/users-pagination-query.dto';
 import { retry } from 'rxjs';
+import { CreateUserDTO } from './dtos/create-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(Users) private usersRepo: Repository<Users>) {}
+
+  async createUser(data: CreateUserDTO) {
+    try {
+      const user = this.usersRepo.create(data);
+      await this.usersRepo.save(user);
+    } catch (err) { 
+      throw new InternalServerErrorException(err);
+    };
+  }
   async findUserById(id: string): Promise<Users> {
     if (!id) {
       throw new BadRequestException('id is required!');
@@ -110,9 +121,9 @@ export class UsersService {
     return this.usersRepo.remove(user);
   }
 
-  async getUserByPhoneNumber(phoneNumber:string): Promise<Users> {
-    if(!phoneNumber){
-      throw new BadRequestException("phoneNumber is required!");
+  async getUserByPhoneNumber(phoneNumber: string): Promise<Users> {
+    if (!phoneNumber) {
+      throw new BadRequestException('phoneNumber is required!');
     }
     let user: Users = await this.usersRepo.findOne({
       where: {
@@ -120,5 +131,34 @@ export class UsersService {
       },
     });
     return user;
+  }
+  async getUserByEmail(email: string): Promise<Users> {
+    if (!email) {
+      throw new BadRequestException('email is required!');
+    }
+    let user: Users = await this.usersRepo.findOne({
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found!');
+    }
+    return user;
+  }
+
+  async verifyMe(phoneNumber: string) {
+    try {
+      let user: Users = await this.usersRepo.findOne({
+        where: {
+          phone: phoneNumber,
+        },
+      });
+      user.is_verified = true;
+
+      return await this.usersRepo.save(user);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
   }
 }
