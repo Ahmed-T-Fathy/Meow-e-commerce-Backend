@@ -21,6 +21,7 @@ export class OtpService {
   ) {}
 
   async getOtp(otpObj: GetOtpDTO) {
+    throw new BadRequestException('otp is service is not available!');
     const user = await this.userService.getUserByEmail(otpObj.email);
 
     await this.otpRepo.delete({ phoneNumber: user.phone });
@@ -39,6 +40,8 @@ export class OtpService {
   }
 
   async verifyOtp(otp: number) {
+    throw new BadRequestException('otp is service is not available!');
+
     let _otp = await this.otpRepo.findOne({ where: { otp } });
 
     if (!_otp) throw new NotFoundException('Incorrect OTP!');
@@ -53,6 +56,8 @@ export class OtpService {
 
   async verifyToken(token: string) {
     try {
+      throw new BadRequestException('otp is service is not available!');
+
       let _otp = await this.otpRepo.findOne({ where: { token } });
 
       if (!_otp.isValidToken()) {
@@ -60,7 +65,6 @@ export class OtpService {
       }
 
       return await this.userService.verifyMe(_otp.phoneNumber);
-
     } catch (err) {
       throw new InternalServerErrorException(err);
     }

@@ -52,8 +52,8 @@ export class AuthService {
     // await this.usersRepo.save(user);
     // console.log(user);
 
-    if (!user.is_verified)
-      throw new UnauthorizedException('you are not verified!');
+    // if (!user.is_verified)
+    //   throw new UnauthorizedException('you are not verified!');
 
     const isPasswordValid = await user.comparePassword(data.password);
 
